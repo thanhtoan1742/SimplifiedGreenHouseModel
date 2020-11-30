@@ -1,0 +1,28 @@
+d_CO2_Air: MC_BlowAir MC_ExtAir MC_PadAir MC_AirCan MC_AirTop MC_AirOut
+d_CO2_Top: MC_AirTop MC_TopOut
+
+MC_BlowAir: eta_HeatCO2 U_Blown P_Blown A_Flr
+MC_ExtAir: U_ExtCO2 phi_ExtCO2 A_Flr
+MC_PadAir: U_Pad phi_Pad A_Flr CO2_Out CO2_Air
+MC_AirTop: f_ThrScr CO2_Air CO2_Top
+f_ThrScr: U_ThrScr K_ThrScr T_Air T_Top g rho_Mean_Air rho_Air rho_Top
+MC_AirOut: f_VentSide f_VentForced CO2_Air CO2_Out
+f_VentRoofSide: C_d A_Flr U_Roof U_Side A_Roof A_Side g h_SideRoof T_Air T_Out T_Mean_Air C_w v_Wind
+eta_InsScr: zeta_InsSrc
+f_leakage: c_leakage v_Wind
+f_VentSide: eta_InsScr dd_f_VentSide f_leakage U_ThrScr f_VentRoofSide eta_Side
+dd_f_VentSide: f_VentRoofSide A_Roof
+f_VentForced: eta_InsScr U_VentForced phi_VentForced A_Flr
+MC_TopOut: f_VentRoof CO2_Top CO2_Out
+f_VentRoof: eta_InsScr dd_f_VentRoof f_leakage U_ThrScr f_VentRoofSide eta_Size 
+dd_f_VentRoof: C_d U_Roof A_Roof A_Flr g h_Roof T_Air T_Out T_Mean_Air C_w v_Wind
+MC_AirCan: M_CH20 h_C_Buf P R
+h_C_Buf: C_Buf C_Max_Buf
+
+P: CO2_Air CO2_Storm Res P_Max CO2_0.5
+k(T): k(T_0) Ha R T T_0 LAI 
+f(T): Hd R T T_0 S 
+P_Max(T): k(T) f(T)
+I: I_0 K LAI m
+L: L_0 K LAI m 
+P_Max: P_MLT P_Max(T) L L_0.5
