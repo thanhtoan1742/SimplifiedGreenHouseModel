@@ -1,14 +1,17 @@
 class CO2_Model:
-    def __init__(self):
+    def __init__(self, cap_CO2_Air, cap_CO2_Top):
+        self.cap_CO2_Air = cap_CO2_Air
+        self.cap_CO2_Top = cap_CO2_Top
+
         self.CO2_Air_0 = 0
         self.CO2_Top_0 = 0
         self.t = 0
         
     def d_CO2_Air(self):
-        return self.MC_BlowAir() + self.MC_ExtAir() + self.MC_PadAir() - self.MC_AirCan() - self.MC_AirTop() - self.MC_AirOut()
+        return (self.MC_BlowAir() + self.MC_ExtAir() + self.MC_PadAir() - self.MC_AirCan() - self.MC_AirTop() - self.MC_AirOut()) / self.cap_CO2_Air
 
     def d_CO2_Top(self):
-        return self.MC_AirTop() - self.MC_TopOut()
+        return (self.MC_AirTop() - self.MC_TopOut()) / self.cap_CO2_Top
 
     def MC_BlowAir(self):
         return 0
