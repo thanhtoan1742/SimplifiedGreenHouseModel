@@ -15,6 +15,34 @@ class CO2_Model:
         self.M_CH2O = 30
         ###END_DUY
         
+        ###___START-BACH-VARS__###
+        self.x = -1
+        self.A_Roof = self.x
+        self.A_Side = self.x
+        #AVAILBLE PARAMS MC_AIRTOP:
+        #Sicily || Netherland || Texas || Arizona
+        self.g = 9.81
+        self.K_ThScr = self.x # x | 0.05*1e-3 | 0.25*1e-3 | 1e-3
+
+        #AVAILBLE PARAMS MC_TOPOUT:
+        #Sicily || Netherland || Texas || Arizona
+        self.sigma_InsScr = 0.33 # 0.33 | 1 | 1 | x
+        self.eta_Roof_Thr = 0.9
+        self.A_Flr = 1.3*1e4 # 1.3*1e4 | 1.4*1e4 | 7.8*1e4 | 278
+        self.tmp1 = self.A_Roof/self.A_Flr # 0.2 | 0.1 | 0.18 | x      ###??? is this true?
+        self.tmp2 = self.A_Side/self.A_Flr # 0 | 0 | 0 | x    ###??? is this true?
+
+        self.C_Gh_d = 0.75 # 0.75 | 0.75 | 0.65 | x
+        self.C_Gh_w = 0.12 # 0.12 | 0.09 | 0.09 | x
+        self.eta_ShScrC_d = self.x # x | x | x | x
+        self.eta_ShScrC_w = self.x # x | x | x | x
+        self.h_Vent = 1.6 # 1.6 | 0.68 | 0.97 | x
+
+        self.c_leakage = 1e-4 # 1e-4 | 1e-4 | 1e-4 | 1e-4
+        self.h_SideRoof = self.x # x | x | x | x        
+
+        ###__END-BACH-VARS__###
+
     def d_CO2_Air(self):
         return (self.MC_BlowAir() + self.MC_ExtAir() + self.MC_PadAir() - self.MC_AirCan() - self.MC_AirTop() - self.MC_AirOut()) / self.cap_CO2_Air
 
@@ -39,14 +67,62 @@ class CO2_Model:
         return 1
     ###END_DUY
 
-    def MC_AirTop(self):
-        return 0
+    ###__START-BACH-FUNCS__###
+    def f_ThScr(self, U_ThScr, T_Air, T_Top, p_Air, p_Top): 
+        p_Air_Mean = (p_Air + p_Top)/2
+
+        screen = U_ThScr * self.K_ThScr * math.pow(math.fabs(T_Air-T_Top), 2/3)
+        no_screen = (1-U_ThScr)*pow( self.g*(1-U_ThScr)*math.fabs(p_Air-p_Top)/(2*p_Air_Mean), 1/2)
+        return screen + no_screen
+
+    def MC_AirTop(self, U_ThScr, T_Air, T_Top, p_Air, p_Top, CO2_Air, CO2_Top):
+        return self.f_ThScr(U_ThScr, T_Air, T_Top, p_Air, p_Top)*(CO2_Air - CO2_Top)
+
+    def C_d(self, U_ShScr):
+        return self.C_Gh_d*(1-self.eta_ShScrC_d*U_ShScr) 
+
+    def C_w(self, U_ShScr):
+        return self.C_Gh_w*(1-self.eta_ShScrC_w*U_ShScr)
+
+    def dd_f_VentRoofSide(self, U_Roof, U_Side, T_Air, T_Out, U_ShScr, v_Wind):
+        T_Mean_Air = (T_Air + T_Out)/2
+
+        T_diff_1 =  math.pow(U_Roof*U_Side*self.A_Roof*self.A_Side, 2) / ( math.pow(U_Roof*self.A_Roof, 2) + math.pow(U_Side*self.A_Side, 2) ) 
+        T_diff_2 = (2 * self.g * self.h_SideRoof * (T_Air-T_Out) ) /T_Mean_Air
+        P_diff = math.pow( (U_Roof*self.A_Roof + U_Side*self.A_Side)/2, 2) * self.C_w(U_ShScr)*math.pow(v_Wind, 2)
+        return (self.C_d(U_ShScr) / self.A_Flr) * math.pow(T_diff_1*T_diff_2 + P_diff, 1/2)
+
+    def f_leakage(self, v_Wind):
+        if (v_Wind < 0.25):
+            return 0.25*self.c_leakage
+        else:
+            return v_Wind*self.c_leakage
+
+    def dd_f_VenRoof(self, U_Roof, T_Air, T_Out, v_Wind, U_ShScr):
+        T_Mean_Air = (T_Air + T_Out)/2
+
+        tmp1 = self.C_d(U_ShScr)*U_Roof*self.A_Roof/(2*self.A_Flr)
+        tmp2 = self.g * self.h_Vent * (T_Air - T_Out)/(2*T_Mean_Air) + self.C_w(U_ShScr)*pow(v_Wind, 2) 
+        return tmp1*pow(tmp2,1/2)
+
+    def eta_InsScr(self):
+        return self.sigma_InsScr*(2 - self.sigma_InsScr)
+
+    def f_VentRoof(self, eta_Roof, U_ThScr, U_Roof, U_Side, T_Air, T_Out, v_Wind, U_ShScr):
+        if (eta_Roof >= self.eta_Roof_Thr):
+            return self.eta_InsScr() * self.dd_f_VenRoof(U_Roof, T_Air, T_Out, v_Wind, U_ShScr) + 0.5*self.f_leakage(v_Wind)
+        else:
+            tmp1 = U_ThScr*self.dd_f_VenRoof(U_Roof, T_Air, T_Out, v_Wind, U_ShScr) 
+            tmp2 = (1-U_ThScr) * self.dd_f_VentRoofSide(U_Roof, U_Side, T_Air, T_Out, U_ShScr, v_Wind)*eta_Roof
+            return self.eta_InsScr()*(tmp1 + tmp2) + 0.5*self.f_leakage(v_Wind)
+
+    def MC_TopOut(self, eta_Roof, U_ThScr, U_Roof, U_Side, T_Air, T_Out, v_Wind, U_ShScr, CO2_Air, CO2_Top):
+        return self.f_VentRoof(eta_Roof, U_ThScr, U_Roof, U_Side, T_Air, T_Out, v_Wind, U_ShScr)*(CO2_Air - CO2_Top)
+
+    ###__END-BACH-FUNCS__###
 
     def MC_AirOut(self):
         return 0
-
-    def MC_TopOut(self):
-        return 0    
 
 #############################################################################################
 
@@ -95,3 +171,8 @@ class CO2_Model:
         self.t = t
 
         return self.d_CO2_Air(), self.d_CO2_Top()
+
+###USE WHEN TESTING METHODS###
+# if __name__ == "__main__": 
+#     model = CO2_Model(0,0)
+#     model.MC_AirTop(1,1,1,1,1,1,1)
