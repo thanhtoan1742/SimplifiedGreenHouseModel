@@ -8,6 +8,12 @@ class CO2_Model:
         self.CO2_Air_0 = 0
         self.CO2_Top_0 = 0
         self.t = 0
+
+        ###DUY
+        self.eta_HeatCO2 = 0.057
+        self.C_Max_Buf = 20000      #20e3
+        self.M_CH2O = 30
+        ###END_DUY
         
     def d_CO2_Air(self):
         return (self.MC_BlowAir() + self.MC_ExtAir() + self.MC_PadAir() - self.MC_AirCan() - self.MC_AirTop() - self.MC_AirOut()) / self.cap_CO2_Air
@@ -15,17 +21,23 @@ class CO2_Model:
     def d_CO2_Top(self):
         return (self.MC_AirTop() - self.MC_TopOut()) / self.cap_CO2_Top
 
+    ###DUY
     def MC_BlowAir(self):
-        return 0
+        return (self.eta_HeatCO2 * self.U_Blown * self.P_Blown) / self.A_Flr
 
     def MC_ExtAir(self):
-        return 0
+        return self.U_ExtCO2 * self.phi_ExtCO2 / self.A_Flr
 
     def MC_PadAir(self):
-        return 0
+        return (self.U_Pad * self.phi_Pad) / self.A_Flr * (self.CO2_Out - self.CO2_Air)
 
     def MC_AirCan(self):
-        return 0
+        return self.M_CH2O * self.H_C_Buf() * (self.P() - self.R)
+
+    def H_C_Buf(self):
+        if self.C_Buf > self.C_Max_Buf: return 0
+        return 1
+    ###END_DUY
 
     def MC_AirTop(self):
         return 0
