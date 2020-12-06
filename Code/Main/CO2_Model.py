@@ -9,11 +9,11 @@ class CO2_Model:
         self.CO2_Top_0 = 0
         self.t = 0
 
-        ###DUY
+        ###___DUY___###
         self.eta_HeatCO2 = 0.057
         self.C_Max_Buf = 20000      #20e3
         self.M_CH2O = 30
-        ###END_DUY
+        ###___END_DUY___###
         
         ###___START-BACH-VARS__###
         self.x = -1
@@ -49,23 +49,23 @@ class CO2_Model:
     def d_CO2_Top(self):
         return (self.MC_AirTop() - self.MC_TopOut()) / self.cap_CO2_Top
 
-    ###DUY
-    def MC_BlowAir(self):
-        return (self.eta_HeatCO2 * self.U_Blown * self.P_Blown) / self.A_Flr
+    ###___DUY-FUNC____###
+    def MC_BlowAir(self, U_Blown, P_Blown, A_Flr):
+        return (self.eta_HeatCO2 * U_Blown * P_Blown) / A_Flr
 
-    def MC_ExtAir(self):
-        return self.U_ExtCO2 * self.phi_ExtCO2 / self.A_Flr
+    def MC_ExtAir(self, U_ExtCO2, phi_ExtCO2, A_Flr):
+        return U_ExtCO2 * phi_ExtCO2 / A_Flr
 
-    def MC_PadAir(self):
-        return (self.U_Pad * self.phi_Pad) / self.A_Flr * (self.CO2_Out - self.CO2_Air)
+    def MC_PadAir(self, U_Pad, phi_Pad, A_Flr, CO2_Out, CO2_Air):
+        return (U_Pad * phi_Pad) / A_Flr * (CO2_Out - CO2_Air)
 
-    def MC_AirCan(self):
-        return self.M_CH2O * self.H_C_Buf() * (self.P() - self.R)
+    def MC_AirCan(self, C_Buf, R):
+        return self.M_CH2O * self.H_C_Buf(C_Buf) * (self.P() - R)
 
-    def H_C_Buf(self):
-        if self.C_Buf > self.C_Max_Buf: return 0
+    def H_C_Buf(self, C_Buf):
+        if C_Buf > self.C_Max_Buf: return 0
         return 1
-    ###END_DUY
+    ###___END_DUY_FUNC___###
 
     ###__START-BACH-FUNCS__###
     def f_ThScr(self, U_ThScr, T_Air, T_Top, p_Air, p_Top): 
