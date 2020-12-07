@@ -1,47 +1,15 @@
 import math
 
-class CO2_Model:
-    def __init__(self, cap_CO2_Air, cap_CO2_Top):
-        self.cap_CO2_Air = cap_CO2_Air
-        self.cap_CO2_Top = cap_CO2_Top
+import ModelConstant as constant
+from ModelParameter import *
+from ModelSetPoint import *
+from ModelState import *
 
-        self.CO2_Air_0 = 0
-        self.CO2_Top_0 = 0
-        self.t = 0
-
-        ###___DUY___###
-        self.eta_HeatCO2 = 0.057
-        self.C_Max_Buf = 20000      #20e3
-        self.M_CH2O = 30
-        ###___END_DUY___###
-        
-        ###___START-BACH-VARS__###
-        self.x = -1
-        self.A_Roof = self.x
-        self.A_Side = self.x
-        #AVAILBLE PARAMS MC_AIRTOP:
-        #Sicily || Netherland || Texas || Arizona
-        self.g = 9.81
-        self.K_ThScr = self.x # x | 0.05*1e-3 | 0.25*1e-3 | 1e-3
-
-        #AVAILBLE PARAMS MC_TOPOUT:
-        #Sicily || Netherland || Texas || Arizona
-        self.sigma_InsScr = 0.33 # 0.33 | 1 | 1 | x
-        self.eta_Roof_Thr = 0.9
-        self.A_Flr = 1.3*1e4 # 1.3*1e4 | 1.4*1e4 | 7.8*1e4 | 278
-        self.tmp1 = self.A_Roof/self.A_Flr # 0.2 | 0.1 | 0.18 | x      ###??? is this true?
-        self.tmp2 = self.A_Side/self.A_Flr # 0 | 0 | 0 | x    ###??? is this true?
-
-        self.C_Gh_d = 0.75 # 0.75 | 0.75 | 0.65 | x
-        self.C_Gh_w = 0.12 # 0.12 | 0.09 | 0.09 | x
-        self.eta_ShScrC_d = self.x # x | x | x | x
-        self.eta_ShScrC_w = self.x # x | x | x | x
-        self.h_Vent = 1.6 # 1.6 | 0.68 | 0.97 | x
-
-        self.c_leakage = 1e-4 # 1e-4 | 1e-4 | 1e-4 | 1e-4
-        self.h_SideRoof = self.x # x | x | x | x        
-
-        ###__END-BACH-VARS__###
+class GreenHouseModel:
+    def __init__(self, parameter: ModelParameter):
+        self.parameter = parameter
+        self.setPoint = ModelSetPoint()
+        # self.state = ModelState()
 
     def d_CO2_Air(self):
         return (self.MC_BlowAir() + self.MC_ExtAir() + self.MC_PadAir() - self.MC_AirCan() - self.MC_AirTop() - self.MC_AirOut()) / self.cap_CO2_Air
@@ -127,7 +95,8 @@ class CO2_Model:
 #############################################################################################
 
     def P(self):
-        return quadraticSolver(self.Res, 
+        return self.quadraticSolver(
+            self.Res, 
             self.CO2_Air_0 + self.CO2_O5() + self.Res*self.P_Max(),
             self.CO2_Air_0*self.P_Max()
         ) 
@@ -165,11 +134,8 @@ class CO2_Model:
     
 #############################################################################################
 
-    def evaluate(self, CO2_Air_0, CO2_Top_0, t):
-        self.CO2_Air_0 = CO2_Air_0
-        self.CO2_Top_0 = CO2_Top_0
-        self.t = t
-
+    def __call__(self, SetPoint, State):
+        
         return self.d_CO2_Air(), self.d_CO2_Top()
 
 ###USE WHEN TESTING METHODS###
