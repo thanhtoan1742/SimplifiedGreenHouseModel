@@ -27,7 +27,7 @@ class CO2_Model:
         #AVAILBLE PARAMS MC_TOPOUT:
         #Sicily || Netherland || Texas || Arizona
         self.sigma_InsScr = 0.33 # 0.33 | 1 | 1 | x
-        self.eta_Roof_Thr = 0.9
+        self.eta_RoofThr = 0.9
         self.A_Flr = 1.3*1e4 # 1.3*1e4 | 1.4*1e4 | 7.8*1e4 | 278
         self.tmp1 = self.A_Roof/self.A_Flr # 0.2 | 0.1 | 0.18 | x      ###??? is this true?
         self.tmp2 = self.A_Side/self.A_Flr # 0 | 0 | 0 | x    ###??? is this true?
@@ -42,6 +42,12 @@ class CO2_Model:
         self.h_SideRoof = self.x # x | x | x | x        
 
         ###__END-BACH-VARS__###
+
+        ###NGUYEN_VARS
+
+        self.phi_VentForced = 0  ### x | x | x | 0
+        self.eta_ShScrCd = self.x  ### x | x | x | x
+        ###END_NGUYEN_VARS
 
     def d_CO2_Air(self):
         return (self.MC_BlowAir() + self.MC_ExtAir() + self.MC_PadAir() - self.MC_AirCan() - self.MC_AirTop() - self.MC_AirOut()) / self.cap_CO2_Air
@@ -98,7 +104,7 @@ class CO2_Model:
         else:
             return v_Wind*self.c_leakage
 
-    def dd_f_VenRoof(self, U_Roof, T_Air, T_Out, v_Wind, U_ShScr):
+    def dd_f_VentRoof(self, U_Roof, T_Air, T_Out, v_Wind, U_ShScr):
         T_Mean_Air = (T_Air + T_Out)/2
 
         tmp1 = self.C_d(U_ShScr)*U_Roof*self.A_Roof/(2*self.A_Flr)
@@ -109,10 +115,10 @@ class CO2_Model:
         return self.sigma_InsScr*(2 - self.sigma_InsScr)
 
     def f_VentRoof(self, eta_Roof, U_ThScr, U_Roof, U_Side, T_Air, T_Out, v_Wind, U_ShScr):
-        if (eta_Roof >= self.eta_Roof_Thr):
-            return self.eta_InsScr() * self.dd_f_VenRoof(U_Roof, T_Air, T_Out, v_Wind, U_ShScr) + 0.5*self.f_leakage(v_Wind)
+        if (eta_Roof >= self.eta_RoofThr):
+            return self.eta_InsScr() * self.dd_f_VentRoof(U_Roof, T_Air, T_Out, v_Wind, U_ShScr) + 0.5*self.f_leakage(v_Wind)
         else:
-            tmp1 = U_ThScr*self.dd_f_VenRoof(U_Roof, T_Air, T_Out, v_Wind, U_ShScr) 
+            tmp1 = U_ThScr*self.dd_f_VentRoof(U_Roof, T_Air, T_Out, v_Wind, U_ShScr)
             tmp2 = (1-U_ThScr) * self.dd_f_VentRoofSide(U_Roof, U_Side, T_Air, T_Out, U_ShScr, v_Wind)*eta_Roof
             return self.eta_InsScr()*(tmp1 + tmp2) + 0.5*self.f_leakage(v_Wind)
 
@@ -121,8 +127,51 @@ class CO2_Model:
 
     ###__END-BACH-FUNCS__###
 
-    def MC_AirOut(self):
-        return 0
+    ###NGUYEN
+
+    # REDECLARATION OF BACH'S FUNC
+    # def f_leakage(self, v_Wind):
+    #     if v_Wind < 0.25:
+    #         return 0.25 * self.c_leakage
+    #     else:
+    #         return v_Wind * self.c_leakage
+    # def C_d(self, U_ShSc):
+    #     return self.C_Gh_d * (1 - self.eta_ShScrCd * U_ShSc)
+    #
+    # def C_w(self, U_ShSc):
+    #     return self.C_Gh_w * (1 - self.eta_ShScrCd * U_ShSc)
+    #
+    # def eta_InsScr(self):
+    #     return self.sigma_InsScr * (2 - self.sigma_InsScr)
+    #
+    # def dd_f_VentRoofSide(self, T_Out, T_Air, U_Roof, U_Side, U_ShSc, v_Wind):
+    #     T_MeanAir = T_Out + T_Air
+    #     op1 = math.pow(self.A_Roof * self.A_Side * U_Roof * U_Side, 2) / (
+    #                 math.pow(self.A_Roof * U_Roof, 2) + math.pow(self.A_Side * U_Side, 2))
+    #     op2 = 2 * self.g * self.h_SideRoof * (T_Air - T_Out) / (T_MeanAir + 273.15)
+    #     op3 = math.pow(self.A_Roof * U_Roof + self.A_Side * U_Side, 2) * self.C_w(U_ShSc) * math.pow(v_Wind, 2) / 4
+    #
+    #     return self.C_d(U_ShSc) / self.A_Flr * math.pow(op1 * op2 + op3, 0.5)
+    
+    def dd_f_VentSide(self, U_Side, U_ShSc, v_Wind):
+        return self.dd_f_VentRoofSide(0, U_Side, 0, 0, U_ShSc, v_Wind)
+
+    def f_VentForced(self, U_VentForced):
+        return self.eta_InsScr() * U_VentForced * self.phi_VentForced / self.A_Flr
+
+    def f_VentSide(self, eta_Roof, eta_Side, T_Out, T_Air, U_Roof, U_Side, U_ThScr, U_ShSc, v_Wind):
+        if eta_Roof >= self.eta_RoofThr:
+            return self.eta_InsScr() * self.dd_f_VentSide(U_Side, U_ShSc, v_Wind) + 0.5 * self.f_leakage(v_Wind)
+        else:
+            return self.eta_InsScr() * (U_ThScr * self.dd_f_VentSide(U_Side, U_ShSc, v_Wind) +
+                                   (1 - U_ThScr) * self.dd_f_VentRoofSide(T_Out, T_Air, U_Roof, U_Side, U_ShSc, v_Wind) * eta_Side) + \
+                   0.5 * self.f_leakage(v_Wind)
+
+    def MC_AirOut(self, eta_Roof, eta_Side, T_Out, T_Air, U_Roof, U_Side, U_ThScr, U_ShSc, v_Wind,
+                  U_VentForced, CO2_Air, CO2_Out):
+        return (self.f_VentSide(eta_Roof, eta_Side, T_Out, T_Air, U_Roof, U_Side, U_ThScr, U_ShSc, v_Wind) +
+                self.f_VentForced(U_VentForced)) * (CO2_Air - CO2_Out)
+    ###END_NGUYEN
 
 #############################################################################################
 
