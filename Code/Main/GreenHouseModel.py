@@ -9,13 +9,8 @@ class GreenHouseModel:
     def __init__(self, parameter: ModelParameter):
         self.parameter = parameter
         self.setPoint = ModelSetPoint()
-        # self.state = ModelState()
-
-        ###NGUYEN_VARS
-
-        self.phi_VentForced = 0  ### x | x | x | 0
-        self.eta_ShScrCd = self.x  ### x | x | x | x
-        ###END_NGUYEN_VARS
+        self.state = ModelState()
+        
 
     def d_CO2_Air(self):
         return (self.MC_BlowAir() + self.MC_ExtAir() + self.MC_PadAir() - self.MC_AirCan() - self.MC_AirTop() - self.MC_AirOut()) / self.cap_CO2_Air
@@ -145,9 +140,9 @@ class GreenHouseModel:
 
     def P(self):
         return self.quadraticSolver(
-            self.Res, 
-            self.CO2_Air_0 + self.CO2_O5() + self.Res*self.P_Max(),
-            self.CO2_Air_0*self.P_Max()
+            self.parameter.Res, 
+            self.state.CO2_Air + self.CO2_O5() + self.parameter.Res * self.P_Max(),
+            self.state.CO2_Air * self.P_Max()
         ) 
     
     def quadraticSolver(self, a, b, c):
@@ -183,9 +178,11 @@ class GreenHouseModel:
     
 #############################################################################################
 
-    def __call__(self, SetPoint, State):
-        
-        return self.d_CO2_Air(), self.d_CO2_Top()
+    def __call__(self, setPoint: ModelSetPoint, state: ModelState):
+        self.setPoint = setPoint
+        self.state = state
+
+        return ModelState(self.d_CO2_Air(), self.d_CO2_Top(), self.VP_Air(), self.VP_Top(), self.T())
 
 ###USE WHEN TESTING METHODS###
 # if __name__ == "__main__": 

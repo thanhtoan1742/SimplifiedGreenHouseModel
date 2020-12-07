@@ -1,3 +1,4 @@
-import ModelConstant as constant
+from GreenHouseModel import *
 
-print(constant.g)
+gh = GreenHouseModel()
+
