@@ -1,8 +1,24 @@
 class ModelParameter:
-    def __init__(self, A_Flr, h_Air, h_Gh, p_Air, p_Top, K_ThScr, eta_ShScrC_d, eta_ShScrC_w, C_Gh_d, C_Gh_w, v_Wind, h_SideRoof,
+    def __init__(self, A_Flr, h_Air, h_Gh, 
+                P_Blow, phi_ExtCO2, phi_Pad, CO2_Out, C_Buf, T_Can,
+                p_Air, p_Top, K_ThScr, eta_ShScrC_d, eta_ShScrC_w, C_Gh_d, C_Gh_w, v_Wind, h_SideRoof,
                 A_Roof, A_Side, T_Out, c_leakage, h_Vent, sigma_InsScr):
         self.h_Air = h_Air
         self.h_Gh = h_Gh
+
+        #MC_AirBlow
+        self.P_Blow = P_Blow
+
+        #MC_ExtAir
+        self.phi_ExtCO2 = phi_ExtCO2
+
+        #MC_PadAir
+        self.phi_Pad = phi_Pad
+        self.CO2_Out = CO2_Out
+
+        #MC_AirCan
+        self.C_Buf = C_Buf
+        self.T_Can = T_Can
 
         #BACH
         self.p_Air = p_Air

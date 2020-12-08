@@ -18,21 +18,44 @@ class GreenHouseModel:
     def d_CO2_Top(self):
         return (self.MC_AirTop() - self.MC_TopOut()) / self.cap_CO2_Top
 
-    ###___DUY-FUNC____###
-    def MC_BlowAir(self, U_Blown, P_Blown, A_Flr):
-        return (self.eta_HeatCO2 * U_Blown * P_Blown) / A_Flr
+        ###___DUY-FUNC____###
+    def MC_BlowAir(self):
+        eta_HeatCO2 = constant.eta_HeatCO2
+        U_Blow = self.setPoint.U_Blow
+        P_Blow = self.parameter.P_Blow
+        A_Flr = self.parameter.A_Flr
+        return (eta_HeatCO2 * U_Blow * P_Blow) / A_Flr
 
-    def MC_ExtAir(self, U_ExtCO2, phi_ExtCO2, A_Flr):
+    def MC_ExtAir(self):
+        U_ExtCO2 = self.setPoint.U_ExtCO2
+        phi_ExtCO2 = self.parameter.phi_ExtCO2
+        A_Flr = self.parameter.A_Flr
         return U_ExtCO2 * phi_ExtCO2 / A_Flr
 
-    def MC_PadAir(self, U_Pad, phi_Pad, A_Flr, CO2_Out, CO2_Air):
+    def MC_PadAir(self):
+        U_Pad = self.setPoint.U_Pad
+        phi_Pad = self.parameter.phi_Pad
+        A_Flr = self.parameter.A_Flr
+        CO2_Out = self.parameter.CO2_Out
+        CO2_Air = self.state.CO2_Air
         return (U_Pad * phi_Pad) / A_Flr * (CO2_Out - CO2_Air)
 
-    def MC_AirCan(self, C_Buf, R):
-        return self.M_CH2O * self.H_C_Buf(C_Buf) * (self.P() - R)
+    def MC_AirCan(self):
+        M_CH2O = constant.M_CH2O
+        H_C_Buf = self.H_C_Buf()
+        P = self.P()
+        R = self.R(P)
+        return M_CH2O * H_C_Buf * (P - R)
 
-    def H_C_Buf(self, C_Buf):
-        if C_Buf > self.C_Max_Buf: return 0
+    def R(self, P):
+        ComP = constant.C_ComP * self.parameter.T_Can
+        CO2_Stom = constant.CO2_Air_Stom * self.state.CO2_Air
+        return P * ComP / CO2_Stom
+
+    def H_C_Buf(self):
+        C_Buf = self.parameter.C_Buf
+        C_Max_Buf = constant.C_Max_Buf
+        if C_Buf > C_Max_Buf: return 0
         return 1
     ###___END_DUY_FUNC___###
 
