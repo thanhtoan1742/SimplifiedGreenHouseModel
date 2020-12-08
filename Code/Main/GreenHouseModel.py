@@ -41,20 +41,20 @@ class GreenHouseModel:
         return (U_Pad * phi_Pad) / A_Flr * (CO2_Out - CO2_Air)
 
     def MC_AirCan(self):
-        M_CH2O = constant.M_CH2O
+        M_CH2O = M_CH2O
         H_C_Buf = self.H_C_Buf()
         P = self.P()
         R = self.R(P)
         return M_CH2O * H_C_Buf * (P - R)
 
     def R(self, P):
-        ComP = constant.C_ComP * self.parameter.T_Can
-        CO2_Stom = constant.CO2_Air_Stom * self.state.CO2_Air
+        ComP = C_ComP * self.parameter.T_Can
+        CO2_Stom = CO2_Air_Stom * self.state.CO2_Air
         return P * ComP / CO2_Stom
 
     def H_C_Buf(self):
         C_Buf = self.parameter.C_Buf
-        C_Max_Buf = constant.C_Max_Buf
+        C_Max_Buf = C_Max_Buf
         if C_Buf > C_Max_Buf: return 0
         return 1
     ###___END_DUY_FUNC___###
