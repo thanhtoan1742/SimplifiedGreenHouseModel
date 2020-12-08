@@ -1,6 +1,6 @@
 import math
 
-import ModelConstant as constant
+from ModelConstant import  *
 from ModelParameter import *
 from ModelSetPoint import *
 from ModelState import *
@@ -37,56 +37,111 @@ class GreenHouseModel:
     ###___END_DUY_FUNC___###
 
     ###__START-BACH-FUNCS__###
-    def f_ThScr(self, U_ThScr, T_Air, T_Top, p_Air, p_Top): 
+    def f_ThScr(self): 
+        p_Air = self.parameter.p_Air
+        p_Top = self.parameter.p_Top
+        K_ThScr = self.parameter.K_ThScr
+        U_ThScr = self.setPoint.U_ThScr
+        T_Air = self.state.T_Air
+        T_Top = self.state.T_Top
+
         p_Air_Mean = (p_Air + p_Top)/2
 
-        screen = U_ThScr * self.K_ThScr * math.pow(math.fabs(T_Air-T_Top), 2/3)
-        no_screen = (1-U_ThScr)*pow( self.g*(1-U_ThScr)*math.fabs(p_Air-p_Top)/(2*p_Air_Mean), 1/2)
+        screen = U_ThScr * K_ThScr * math.pow(math.fabs(T_Air-T_Top), 2/3)
+        no_screen = (1-U_ThScr)*pow( g*(1-U_ThScr)*math.fabs(p_Air-p_Top)/(2*p_Air_Mean), 1/2)
         return screen + no_screen
 
-    def MC_AirTop(self, U_ThScr, T_Air, T_Top, p_Air, p_Top, CO2_Air, CO2_Top):
-        return self.f_ThScr(U_ThScr, T_Air, T_Top, p_Air, p_Top)*(CO2_Air - CO2_Top)
+    def MC_AirTop(self):
+        CO2_Air = self.state.CO2_Air
+        CO2_Top = self.state.Co2_Top
+        f_ThScr = self.f_ThScr()
+        return f_ThScr*(CO2_Air - CO2_Top)
 
-    def C_d(self, U_ShScr):
-        return self.C_Gh_d*(1-self.eta_ShScrC_d*U_ShScr) 
+    def C_d(self):
+        U_ShScr = self.setPoint.U_ShScr
+        eta_ShScrC_d = self.parameter.eta_ShScrC_d
+        C_Gh_d = self.parameter.C_Gh_d
+        return C_Gh_d*(1-eta_ShScrC_d*U_ShScr) 
 
-    def C_w(self, U_ShScr):
-        return self.C_Gh_w*(1-self.eta_ShScrC_w*U_ShScr)
+    def C_w(self):
+        U_ShScr = self.setPoint.U_ShScr
+        eta_ShScrC_w = self.parameter.eta_ShScrC_d
+        C_Gh_w = self.parameter.C_Gh_w
+        return C_Gh_w*(1 - eta_ShScrC_w*U_ShScr)
 
-    def dd_f_VentRoofSide(self, U_Roof, U_Side, T_Air, T_Out, U_ShScr, v_Wind):
+    def dd_f_VentRoofSide(self):
+        U_Roof = self.setPoint.U_Roof
+        U_Side = self.setPoint.U_Side
+        T_Air = self.parameter.T_Air
+        T_Out = self.parameter.T_Out
+        v_Wind = self.parameter.v_Wind
+        h_SideRoof = self.parameter.h_SideRoof
+        A_Flr = self.parameter.A_Flr
+        A_Side = self.parameter.A_Side
+        A_Roof = self.parameter.A_Roof
+        C_w = self.C_w()
+        C_d = self.C_d()
+
         T_Mean_Air = (T_Air + T_Out)/2
 
-        T_diff_1 =  math.pow(U_Roof*U_Side*self.A_Roof*self.A_Side, 2) / ( math.pow(U_Roof*self.A_Roof, 2) + math.pow(U_Side*self.A_Side, 2) ) 
-        T_diff_2 = (2 * self.g * self.h_SideRoof * (T_Air-T_Out) ) /T_Mean_Air
-        P_diff = math.pow( (U_Roof*self.A_Roof + U_Side*self.A_Side)/2, 2) * self.C_w(U_ShScr)*math.pow(v_Wind, 2)
-        return (self.C_d(U_ShScr) / self.A_Flr) * math.pow(T_diff_1*T_diff_2 + P_diff, 1/2)
+        T_diff_1 =  math.pow(U_Roof*U_Side*A_Roof*A_Side, 2) / ( math.pow(U_Roof*A_Roof, 2) + math.pow(U_Side*A_Side, 2) ) 
+        T_diff_2 = (2 * g * h_SideRoof * (T_Air-T_Out) ) /T_Mean_Air
+        P_diff = math.pow( (U_Roof*A_Roof + U_Side*A_Side)/2, 2) * C_w*math.pow(v_Wind, 2)
+        return (C_d / A_Flr) * math.pow(T_diff_1 * T_diff_2 + P_diff, 1/2)
 
-    def f_leakage(self, v_Wind):
+    def f_leakage(self):
+        v_Wind = self.parameter.v_Wind
+        c_leakage = self.parameter.c_leakage
+
         if (v_Wind < 0.25):
-            return 0.25*self.c_leakage
+            return 0.25*c_leakage
         else:
-            return v_Wind*self.c_leakage
+            return v_Wind*c_leakage
 
-    def dd_f_VentRoof(self, U_Roof, T_Air, T_Out, v_Wind, U_ShScr):
+    def dd_f_VentRoof(self):
+        U_Roof = self.setPoint.U_Roof
+        T_Air = self.state.T_Air
+        T_Out = self.parameter.T_Out
+        v_Wind = self.parameter.v_Wind
+        A_Roof = self.parameter.A_Roof
+        A_Flr = self.parameter.A_Flr
+        h_Vent = self.parameter.h_Vent
+
+        C_d = self.C_d()
+        C_w = self.C_w()
+
         T_Mean_Air = (T_Air + T_Out)/2
 
-        tmp1 = self.C_d(U_ShScr)*U_Roof*self.A_Roof/(2*self.A_Flr)
-        tmp2 = self.g * self.h_Vent * (T_Air - T_Out)/(2*T_Mean_Air) + self.C_w(U_ShScr)*pow(v_Wind, 2) 
+        tmp1 = C_d*U_Roof*A_Roof/(2*A_Flr)
+
+        tmp2 = g * h_Vent * (T_Air - T_Out)/(2*T_Mean_Air) + C_w*pow(v_Wind, 2) 
         return tmp1*pow(tmp2,1/2)
 
     def eta_InsScr(self):
-        return self.sigma_InsScr*(2 - self.sigma_InsScr)
+        sigma_InsScr = self.parameter.sigma_InsScr
+        return sigma_InsScr*(2 - sigma_InsScr)
 
-    def f_VentRoof(self, eta_Roof, U_ThScr, U_Roof, U_Side, T_Air, T_Out, v_Wind, U_ShScr):
-        if (eta_Roof >= self.eta_RoofThr):
-            return self.eta_InsScr() * self.dd_f_VentRoof(U_Roof, T_Air, T_Out, v_Wind, U_ShScr) + 0.5*self.f_leakage(v_Wind)
+    def f_VentRoof(self):
+        eta_InsScr = self.eta_InsScr()
+        dd_f_VentRoof = self.dd_f_VentRoof()
+        dd_f_VentRoofSide = self.dd_f_VentRoofSide()
+        f_leakage = self.f_leakage()
+        U_ThScr = self.setPoint.U_ThScr
+
+        eta_Roof = self.parameter.A_Roof/self.parameter.A_Flr
+
+        if (eta_Roof >= eta_Roof_Thr):
+            return eta_InsScr * dd_f_VentRoof() + 0.5*f_leakage
         else:
-            tmp1 = U_ThScr*self.dd_f_VentRoof(U_Roof, T_Air, T_Out, v_Wind, U_ShScr)
-            tmp2 = (1-U_ThScr) * self.dd_f_VentRoofSide(U_Roof, U_Side, T_Air, T_Out, U_ShScr, v_Wind)*eta_Roof
-            return self.eta_InsScr()*(tmp1 + tmp2) + 0.5*self.f_leakage(v_Wind)
+            tmp1 = U_ThScr*dd_f_VentRoof
+            tmp2 = (1-U_ThScr) * dd_f_VentRoofSide*eta_Roof
+            return eta_InsScr*(tmp1 + tmp2) + 0.5*f_leakage
 
-    def MC_TopOut(self, eta_Roof, U_ThScr, U_Roof, U_Side, T_Air, T_Out, v_Wind, U_ShScr, CO2_Air, CO2_Top):
-        return self.f_VentRoof(eta_Roof, U_ThScr, U_Roof, U_Side, T_Air, T_Out, v_Wind, U_ShScr)*(CO2_Air - CO2_Top)
+    def MC_TopOut(self):
+        f_VentRoof = self.f_VentRoof()
+        CO2_Air = self.state.CO2_Air
+        CO2_Top = self.state.CO2_Top
+        return f_VentRoof*(CO2_Air - CO2_Top)
 
     ###__END-BACH-FUNCS__###
 
