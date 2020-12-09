@@ -194,25 +194,52 @@ class GreenHouseModel:
     #
     #     return self.C_d(U_ShSc) / self.A_Flr * math.pow(op1 * op2 + op3, 0.5)
     
-    def dd_f_VentSide(self, U_Side, U_ShSc, v_Wind):
-        return self.dd_f_VentRoofSide(0, U_Side, 0, 0, U_ShSc, v_Wind)
+    def dd_f_VentSide(self):
+        C_d = self.C_d()
+        C_w = self.C_w()
 
-    def f_VentForced(self, U_VentForced):
-        return self.eta_InsScr() * U_VentForced * self.phi_VentForced / self.A_Flr
+        U_Side = self.setPoint.U_Side
+        A_Side = self.parameter.A_Side
+        v_Wind = self.parameter.v_Wind
+        A_Flr = self.parameter.A_Flr
 
-    def f_VentSide(self, eta_Roof, eta_Side, T_Out, T_Air, U_Roof, U_Side, U_ThScr, U_ShSc, v_Wind):
-        if eta_Roof >= self.eta_RoofThr:
-            return self.eta_InsScr() * self.dd_f_VentSide(U_Side, U_ShSc, v_Wind) + 0.5 * self.f_leakage(v_Wind)
+        return C_d * U_Side * A_Side * v_Wind * math.pow(C_w, 0.5) / (2 * A_Flr)
+
+    def f_VentForced(self):
+        eta_InsScr = self.eta_InsScr()
+
+        U_VentForced = self.setPoint.U_VentForced
+        phi_VentForced = self.parameter.phi_VentForced
+        A_Flr = self.parameter.A_Flr
+
+        return eta_InsScr * U_VentForced * phi_VentForced / A_Flr
+
+    def f_VentSide(self):
+        eta_Roof = self.parameter.A_Roof / self.parameter.A_Flr
+        eta_Side = self.parameter.A_Side / self.parameter.A_Flr
+        U_ThScr = self.setPoint.U_ThScr
+
+        eta_InsScr = self.eta_InsScr()
+        dd_f_VentSide = self.dd_f_VentSide()
+        f_leakage = self.f_leakage()
+        dd_f_VentRoofSide = self.dd_f_VentRoofSide()
+
+        if eta_Roof >= eta_Roof_Thr:
+            return eta_InsScr * dd_f_VentSide + 0.5 * f_leakage
         else:
-            return self.eta_InsScr() * (U_ThScr * self.dd_f_VentSide(U_Side, U_ShSc, v_Wind) +
-                                   (1 - U_ThScr) * self.dd_f_VentRoofSide(T_Out, T_Air, U_Roof, U_Side, U_ShSc, v_Wind) * eta_Side) + \
-                   0.5 * self.f_leakage(v_Wind)
+            return eta_InsScr * (U_ThScr * dd_f_VentSide +
+                                   (1 - U_ThScr) * dd_f_VentRoofSide * eta_Side) + \
+                   0.5 * f_leakage
 
-    def MC_AirOut(self, eta_Roof, eta_Side, T_Out, T_Air, U_Roof, U_Side, U_ThScr, U_ShSc, v_Wind,
-                  U_VentForced, CO2_Air, CO2_Out):
-        return (self.f_VentSide(eta_Roof, eta_Side, T_Out, T_Air, U_Roof, U_Side, U_ThScr, U_ShSc, v_Wind) +
-                self.f_VentForced(U_VentForced)) * (CO2_Air - CO2_Out)
-    ###END_NGUYEN
+    def MC_AirOut(self):
+
+        f_VentSide = self.f_VentSide()
+        f_VentForced = self.f_VentForced()
+
+        CO2_Air = self.state.CO2_Air
+        CO2_Out = self.parameter.CO2_Out
+
+        return (f_VentSide + f_VentForced) * (CO2_Air - CO2_Out)
 
 #############################################################################################
 

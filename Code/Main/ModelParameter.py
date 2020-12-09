@@ -37,3 +37,7 @@ class ModelParameter:
         self.c_leakage = c_leakage # 1e-4 | 1e-4 | 1e-4 | 1e-4
         self.h_Vent = h_Vent # 1.6 | 0.68 | 0.97 | x
         self.sigma_InsScr = sigma_InsScr # 0.33 | 1 | 1 | x
+
+        #NGUYEN
+        self.phi_VentForced = 0 # x | x | x | 0
+
