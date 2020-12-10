@@ -13,4 +13,3 @@ CO2_Air_Stom = 0.67
 
 #Bach
 eta_Roof_Thr = 0.9
-    

@@ -20,7 +20,7 @@ class GreenHouseModel:
 
         ###___DUY-FUNC____###
     def MC_BlowAir(self):
-        eta_HeatCO2 = constant.eta_HeatCO2
+        eta_HeatCO2 = eta_HeatCO2
         U_Blow = self.setPoint.U_Blow
         P_Blow = self.parameter.P_Blow
         A_Flr = self.parameter.A_Flr
@@ -41,7 +41,6 @@ class GreenHouseModel:
         return (U_Pad * phi_Pad) / A_Flr * (CO2_Out - CO2_Air)
 
     def MC_AirCan(self):
-        M_CH2O = M_CH2O
         H_C_Buf = self.H_C_Buf()
         P = self.P()
         R = self.R(P)
@@ -54,7 +53,6 @@ class GreenHouseModel:
 
     def H_C_Buf(self):
         C_Buf = self.parameter.C_Buf
-        C_Max_Buf = C_Max_Buf
         if C_Buf > C_Max_Buf: return 0
         return 1
     ###___END_DUY_FUNC___###
@@ -76,7 +74,7 @@ class GreenHouseModel:
 
     def MC_AirTop(self):
         CO2_Air = self.state.CO2_Air
-        CO2_Top = self.state.Co2_Top
+        CO2_Top = self.state.CO2_Top
         f_ThScr = self.f_ThScr()
         return f_ThScr*(CO2_Air - CO2_Top)
 
@@ -95,8 +93,8 @@ class GreenHouseModel:
     def dd_f_VentRoofSide(self):
         U_Roof = self.setPoint.U_Roof
         U_Side = self.setPoint.U_Side
-        T_Air = self.parameter.T_Air
-        T_Out = self.parameter.T_Out
+        T_Air = self.state.T_Air
+        T_Out = self.state.T_Out
         v_Wind = self.parameter.v_Wind
         h_SideRoof = self.parameter.h_SideRoof
         A_Flr = self.parameter.A_Flr
@@ -244,39 +242,65 @@ class GreenHouseModel:
 #############################################################################################
 
     def P(self):
-        return self.quadraticSolver(
-            self.parameter.Res, 
-            self.state.CO2_Air + self.CO2_O5() + self.parameter.Res * self.P_Max(),
-            self.state.CO2_Air * self.P_Max()
-        ) 
+        Res = self.parameter.Res
+        CO2_Air = self.state.CO2_Air
+        CO2_05 = self.CO2_05()
+        P_Max = self.P_Max()
+
+        return self.quadraticSolver(Res, CO2_Air + CO2_05 + Res*P_Max, CO2_Air*P_Max) 
     
     def quadraticSolver(self, a, b, c):
-        delta =  b * b - 4 * a * c
+        delta = b*b - 4*a*c
+        # TODO: clarify the solution of this equation.
         if delta < 0:
             pass
         elif delta == 0:
-            return -b / 2 * a
+            return -b / (2*a)
         else:
-            return (-b + math.sqrt(delta) / 2 * a)
+            return ((-b + math.sqrt(delta)) / (2*a))
 
     def CO2_05(self):
-        return self.CO2_Air_0 - 0.5 * self.Res * self.P_Max()
+        CO2_Air = self.state.CO2_Air
+        Res = self.parameter.Res
+        P_Max = self.P_Max()
+
+        return CO2_Air - 0.5*Res*P_Max
 
     def P_Max(self):
-        return (self.P_MLT + self.P_Max_Single() * self.L()) / (self.L() + self.L_05())
+        P_MLT = self.parameter.P_MLT
+        P_Max_Single = self.P_Max_Single()
+        L = self.L()
+        L_05 = self.L_05()
+
+        return (P_MLT + P_Max_Single*L) / (L + L_05)
 
     def L(self):
-        return self.L_0 * (1 - (self.K * math.exp(-self.K * self.LAI)) / (1 - self.m))
+        L_0 = self.parameter.L_0
+        K = self.parameter.K
+        LAI = self.parameter.LAI
+        m = self.parameter.m
+        
+        return L_0*(1 - K*math.exp(-K*LAI)/(1 - m))
 
     def L_05(self):
-        return 2 * self.P_MLT * self.L() - self.L()
+        P_MLT = self.parameter.P_MLT
+        L = self.L()
+
+        return 2*P_MLT*L - L
 
     def P_Max_Single(self):
-        return self.k() * self.f()
+        k = self.k()
+        f = self.f()
+        return k * f
 
+    # TODO: this function is incomplete
     def k(self):
+        T_opt = self.parameter.T_opt
+        k_T_opt = self.parameter.k_T_opt
+        LAI = self.LAI
         return self.LAI * self.k_T_opt * math.exp(-self.H_a * (self.T_opt - self.T_0) / (self.R * self.T_opt * self.T_0))
 
+    # TODO: this functionis incomplete
     def f(self):
         return (1 + math.exp((-self.H_d ** 2 + self.T_opt * self.S) / (self.R * self.H_d * self.T_opt))) / (1 + math.exp((-self.H_d ** 2 + self.T_0 * self.S) / (self.R * self.H_d * self.T_0)))
 

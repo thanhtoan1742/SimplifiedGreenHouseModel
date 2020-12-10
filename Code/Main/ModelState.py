@@ -4,6 +4,6 @@ class ModelState:
         self.T_Air = T_Air
         self.T_Top = T_Top
         self.CO2_Air = CO2_Air
-        self.C02_Top = CO2_Top
+        self.CO2_Top = CO2_Top
         self.VP_Air = VP_Air
         self.VP_Top = VP_Top

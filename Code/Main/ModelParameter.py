@@ -2,7 +2,8 @@ class ModelParameter:
     def __init__(self, A_Flr, h_Air, h_Gh, 
                 P_Blow, phi_ExtCO2, phi_Pad, CO2_Out, C_Buf, T_Can,
                 p_Air, p_Top, K_ThScr, eta_ShScrC_d, eta_ShScrC_w, C_Gh_d, C_Gh_w, v_Wind, h_SideRoof,
-                A_Roof, A_Side, T_Out, c_leakage, h_Vent, sigma_InsScr):
+                A_Roof, A_Side, T_Out, c_leakage, h_Vent, sigma_InsScr,
+                Res, P_MLT, L_0, K, T_opt, k_T_opt):
         self.h_Air = h_Air
         self.h_Gh = h_Gh
 
@@ -40,4 +41,12 @@ class ModelParameter:
 
         #NGUYEN
         self.phi_VentForced = 0 # x | x | x | 0
+
+        #P
+        self.Res = Res
+        self.P_MLT = P_MLT
+        self.L_0 = L_0
+        self.K = K
+        self.T_opt = T_opt
+        self.k_T_opt = k_T_opt
 
