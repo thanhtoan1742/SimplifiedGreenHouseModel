@@ -293,16 +293,21 @@ class GreenHouseModel:
         f = self.f()
         return k * f
 
-    # TODO: this function is incomplete
     def k(self):
         T_opt = self.parameter.T_opt
         k_T_opt = self.parameter.k_T_opt
-        LAI = self.LAI
-        return self.LAI * self.k_T_opt * math.exp(-self.H_a * (self.T_opt - self.T_0) / (self.R * self.T_opt * self.T_0))
+        LAI = self.parameter.LAI
+        T_Air = self.state.T_Air
+        H_a = self.parameter.H_a
+        return LAI * k_T_opt * math.exp(-H_a * (T_opt - T_Air) / (R * T_opt * T_Air))
 
-    # TODO: this functionis incomplete
+    # R_const in ModelConstant (discriminate with R() respiratory func in MCCanAir)
     def f(self):
-        return (1 + math.exp((-self.H_d ** 2 + self.T_opt * self.S) / (self.R * self.H_d * self.T_opt))) / (1 + math.exp((-self.H_d ** 2 + self.T_0 * self.S) / (self.R * self.H_d * self.T_0)))
+        H_d = self.parameter.H_d
+        S = self.parameter.S
+        T_opt = self.parameter.T_opt
+        T_Air = self.state.T_Air
+        return (1 + math.exp((-H_d ** 2 + T_opt * S) / (R_Const * -H_d * T_opt))) / (1 + math.exp((-H_d ** 2 + T_Air * S) / (R_Const * H_d * T_Air)))
 
     
 #############################################################################################

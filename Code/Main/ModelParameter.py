@@ -3,7 +3,7 @@ class ModelParameter:
                 P_Blow, phi_ExtCO2, phi_Pad, CO2_Out, C_Buf, T_Can,
                 p_Air, p_Top, K_ThScr, eta_ShScrC_d, eta_ShScrC_w, C_Gh_d, C_Gh_w, v_Wind, h_SideRoof,
                 A_Roof, A_Side, T_Out, c_leakage, h_Vent, sigma_InsScr,
-                Res, P_MLT, L_0, K, T_opt, k_T_opt):
+                Res, P_MLT, L_0, K, T_opt, k_T_opt, LAI, H_d, S):
         self.h_Air = h_Air
         self.h_Gh = h_Gh
 
@@ -49,4 +49,8 @@ class ModelParameter:
         self.K = K
         self.T_opt = T_opt
         self.k_T_opt = k_T_opt
+        self.H_d = H_d
+        self.S = S
+        self.H_a = H_a
+        self.LAI = LAI
 
