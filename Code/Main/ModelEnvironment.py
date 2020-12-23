@@ -6,7 +6,7 @@ class ModelEnvironment:
         self.T_Top = T_Top
         self.T_Out = T_Out
 
-    def __call__(self, CO2_Out=None, VP_Out=None, T_Air=None, T_Top=None, T_Out=None):
+    def update(self, CO2_Out=None, VP_Out=None, T_Air=None, T_Top=None, T_Out=None):
         if CO2_Out is not None:
             self.CO2_Out = CO2_Out
         if VP_Out is not None:
