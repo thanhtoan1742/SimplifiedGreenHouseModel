@@ -236,7 +236,6 @@ class GreenHouseModel:
 
         CO2_Air = self.state.CO2_Air
         CO2_Out = self.parameter.CO2_Out
-
         return (f_VentSide + f_VentForced) * (CO2_Air - CO2_Out)
 
 #############################################################################################
