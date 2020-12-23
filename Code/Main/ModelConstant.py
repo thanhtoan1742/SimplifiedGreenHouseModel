@@ -13,4 +13,6 @@ CO2_Air_Stom = 0.67
 
 #Bach
 eta_Roof_Thr = 0.9
-    
+
+#P
+R_Const = 8.314 # 0.082 Depends on dataset
