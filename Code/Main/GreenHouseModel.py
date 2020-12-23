@@ -1,6 +1,6 @@
 import math
 
-from ModelConstant import  *
+import ModelConstant as constant 
 from ModelParameter import *
 from ModelSetPoint import *
 from ModelState import *
@@ -8,19 +8,22 @@ from ModelState import *
 class GreenHouseModel:
     def __init__(self, parameter: ModelParameter):
         self.parameter = parameter
-        self.setPoint = ModelSetPoint()
-        self.state = ModelState()
+        self.setPoint = None
+        self.state = None
+        self.environment = None
         
 
     def d_CO2_Air(self):
-        return (self.MC_BlowAir() + self.MC_ExtAir() + self.MC_PadAir() - self.MC_AirCan() - self.MC_AirTop() - self.MC_AirOut()) / self.cap_CO2_Air
+        cap_CO2_Air = self.parameter.cap_CO2_Air
+        return (self.MC_BlowAir() + self.MC_ExtAir() + self.MC_PadAir() - self.MC_AirCan() - self.MC_AirTop() - self.MC_AirOut()) / cap_CO2_Air
 
     def d_CO2_Top(self):
-        return (self.MC_AirTop() - self.MC_TopOut()) / self.cap_CO2_Top
+        cap_CO2_Top = self.parameter.cap_CO2_Top
+        return (self.MC_AirTop() - self.MC_TopOut()) / cap_CO2_Top
 
         ###___DUY-FUNC____###
     def MC_BlowAir(self):
-        eta_HeatCO2 = eta_HeatCO2
+        eta_HeatCO2 = constant.eta_HeatCO2
         U_Blow = self.setPoint.U_Blow
         P_Blow = self.parameter.P_Blow
         A_Flr = self.parameter.A_Flr
@@ -36,23 +39,28 @@ class GreenHouseModel:
         U_Pad = self.setPoint.U_Pad
         phi_Pad = self.parameter.phi_Pad
         A_Flr = self.parameter.A_Flr
-        CO2_Out = self.parameter.CO2_Out
+        CO2_Out = self.environment.CO2_Out
         CO2_Air = self.state.CO2_Air
         return (U_Pad * phi_Pad) / A_Flr * (CO2_Out - CO2_Air)
 
     def MC_AirCan(self):
+        M_CH2O = constant.M_CH2O
         H_C_Buf = self.H_C_Buf()
         P = self.P()
-        R = self.R(P)
-        return M_CH2O * H_C_Buf * (P - R)
+        R = self.R()
+        return  M_CH2O * H_C_Buf * (P - R)
 
-    def R(self, P):
+    def R(self):
+        P = self.P()
+        C_ComP = constant.C_ComP
+        CO2_Air_Stom = constant.CO2_Air_Stom
         ComP = C_ComP * self.parameter.T_Can
         CO2_Stom = CO2_Air_Stom * self.state.CO2_Air
         return P * ComP / CO2_Stom
 
     def H_C_Buf(self):
         C_Buf = self.parameter.C_Buf
+        C_Max_Buf = constant.C_Max_Buf
         if C_Buf > C_Max_Buf: return 0
         return 1
     ###___END_DUY_FUNC___###
@@ -63,8 +71,9 @@ class GreenHouseModel:
         p_Top = self.parameter.p_Top
         K_ThScr = self.parameter.K_ThScr
         U_ThScr = self.setPoint.U_ThScr
-        T_Air = self.state.T_Air
-        T_Top = self.state.T_Top
+        T_Air = self.environment.T_Air
+        T_Top = self.environment.T_Top
+        g = constant.g
 
         p_Air_Mean = (p_Air + p_Top)/2
 
@@ -93,8 +102,8 @@ class GreenHouseModel:
     def dd_f_VentRoofSide(self):
         U_Roof = self.setPoint.U_Roof
         U_Side = self.setPoint.U_Side
-        T_Air = self.state.T_Air
-        T_Out = self.state.T_Out
+        T_Air = self.environment.T_Air
+        T_Out = self.environment.T_Out
         v_Wind = self.parameter.v_Wind
         h_SideRoof = self.parameter.h_SideRoof
         A_Flr = self.parameter.A_Flr
@@ -102,6 +111,7 @@ class GreenHouseModel:
         A_Roof = self.parameter.A_Roof
         C_w = self.C_w()
         C_d = self.C_d()
+        g = constant.g
 
         T_Mean_Air = (T_Air + T_Out)/2
 
@@ -121,8 +131,8 @@ class GreenHouseModel:
 
     def dd_f_VentRoof(self):
         U_Roof = self.setPoint.U_Roof
-        T_Air = self.state.T_Air
-        T_Out = self.parameter.T_Out
+        T_Air = self.environment.T_Air
+        T_Out = self.environment.T_Out
         v_Wind = self.parameter.v_Wind
         A_Roof = self.parameter.A_Roof
         A_Flr = self.parameter.A_Flr
@@ -130,6 +140,8 @@ class GreenHouseModel:
 
         C_d = self.C_d()
         C_w = self.C_w()
+
+        g = constant.g
 
         T_Mean_Air = (T_Air + T_Out)/2
 
@@ -150,6 +162,8 @@ class GreenHouseModel:
         U_ThScr = self.setPoint.U_ThScr
 
         eta_Roof = self.parameter.A_Roof/self.parameter.A_Flr
+
+        eta_Roof_Thr = constant.eta_Roof_Thr
 
         if (eta_Roof >= eta_Roof_Thr):
             return eta_InsScr * dd_f_VentRoof() + 0.5*f_leakage
@@ -222,6 +236,8 @@ class GreenHouseModel:
         f_leakage = self.f_leakage()
         dd_f_VentRoofSide = self.dd_f_VentRoofSide()
 
+        eta_Roof_Thr = constant.eta_Roof_Thr
+
         if eta_Roof >= eta_Roof_Thr:
             return eta_InsScr * dd_f_VentSide + 0.5 * f_leakage
         else:
@@ -235,7 +251,7 @@ class GreenHouseModel:
         f_VentForced = self.f_VentForced()
 
         CO2_Air = self.state.CO2_Air
-        CO2_Out = self.parameter.CO2_Out
+        CO2_Out = self.environment.CO2_Out
         return (f_VentSide + f_VentForced) * (CO2_Air - CO2_Out)
 
 #############################################################################################
@@ -296,26 +312,33 @@ class GreenHouseModel:
         T_opt = self.parameter.T_opt
         k_T_opt = self.parameter.k_T_opt
         LAI = self.parameter.LAI
-        T_Air = self.state.T_Air
+        T_Air = self.environment.T_Air
         H_a = self.parameter.H_a
-        return LAI * k_T_opt * math.exp(-H_a * (T_opt - T_Air) / (R * T_opt * T_Air))
+
+        R_Const = constant.R_Const
+
+        return LAI * k_T_opt * math.exp(-H_a * (T_opt - T_Air) / (R_Const * T_opt * T_Air))
 
     # R_const in ModelConstant (discriminate with R() respiratory func in MCCanAir)
     def f(self):
         H_d = self.parameter.H_d
         S = self.parameter.S
         T_opt = self.parameter.T_opt
-        T_Air = self.state.T_Air
+        T_Air = self.environment.T_Air
+
+        R_Const = constant.R_Const
+
         return (1 + math.exp((-H_d ** 2 + T_opt * S) / (R_Const * -H_d * T_opt))) / (1 + math.exp((-H_d ** 2 + T_Air * S) / (R_Const * H_d * T_Air)))
 
     
 #############################################################################################
 
-    def __call__(self, setPoint: ModelSetPoint, state: ModelState):
+    def __call__(self, setPoint: ModelSetPoint, state: ModelState, environment: ModelEnvironment):
         self.setPoint = setPoint
         self.state = state
+        self.environment = environment
 
-        return ModelState(self.d_CO2_Air(), self.d_CO2_Top(), self.VP_Air(), self.VP_Top(), self.T())
+        return self.d_CO2_Air(), self.d_CO2_Top()
 
 ###USE WHEN TESTING METHODS###
 # if __name__ == "__main__": 

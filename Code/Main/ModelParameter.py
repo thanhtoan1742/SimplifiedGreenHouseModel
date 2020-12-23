@@ -1,8 +1,8 @@
 class ModelParameter:
     def __init__(self, A_Flr, h_Air, h_Gh, 
-                P_Blow, phi_ExtCO2, phi_Pad, CO2_Out, C_Buf, T_Can,
+                P_Blow, phi_ExtCO2, phi_Pad, C_Buf, T_Can,
                 p_Air, p_Top, K_ThScr, eta_ShScrC_d, eta_ShScrC_w, C_Gh_d, C_Gh_w, v_Wind, h_SideRoof,
-                A_Roof, A_Side, T_Out, c_leakage, h_Vent, sigma_InsScr,
+                A_Roof, A_Side, c_leakage, h_Vent, sigma_InsScr,
                 Res, P_MLT, L_0, K, T_opt, k_T_opt, LAI, H_d, S):
         self.h_Air = h_Air
         self.h_Gh = h_Gh
@@ -15,7 +15,6 @@ class ModelParameter:
 
         #MC_PadAir
         self.phi_Pad = phi_Pad
-        self.CO2_Out = CO2_Out
 
         #MC_AirCan
         self.C_Buf = C_Buf
@@ -34,7 +33,6 @@ class ModelParameter:
         self.A_Flr = A_Flr # 1.3e4 | 1.4e4 | 7.8e4 | 278
         self.A_Roof = A_Roof #
         self.A_Side = A_Side #
-        self.T_Out = T_Out
         self.c_leakage = c_leakage # 1e-4 | 1e-4 | 1e-4 | 1e-4
         self.h_Vent = h_Vent # 1.6 | 0.68 | 0.97 | x
         self.sigma_InsScr = sigma_InsScr # 0.33 | 1 | 1 | x
@@ -51,6 +49,6 @@ class ModelParameter:
         self.k_T_opt = k_T_opt
         self.H_d = H_d
         self.S = S
-        self.H_a = H_a
+        # self.H_a = H_a
         self.LAI = LAI
 
