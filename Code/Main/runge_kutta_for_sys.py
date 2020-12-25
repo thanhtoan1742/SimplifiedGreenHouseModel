@@ -41,5 +41,7 @@ class solver:
         state = self.state
         in_val = np.array([state.CO2_Air, state.CO2_Top], dtype= float)
         out_val = self.runge_kutta_solve(0, in_val, 2, h, self.func_CO2)
-        state.update(CO2_Air = out_val[0], CO2_Top = out_val[1])
+        next_Model = self.state
+        next_Model.update(CO2_Air = out_val[0], CO2_Top = out_val[1])
+        return next_Model
 
