@@ -76,7 +76,6 @@ def myDx(t, x):
     return func
 
 def myFx(t, x):
-    print(len(x))
     func = np.array([0 for i in range(len(x))], dtype = float)
     func[0] = np.exp(-t)
     func[1] = 1
