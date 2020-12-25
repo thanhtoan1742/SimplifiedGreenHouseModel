@@ -4,6 +4,7 @@ import ModelConstant as constant
 from ModelParameter import *
 from ModelSetPoint import *
 from ModelState import *
+from ModelEnvironment import *
 
 class GreenHouseModel:
     def __init__(self, parameter: ModelParameter):
