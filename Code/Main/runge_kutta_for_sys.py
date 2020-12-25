@@ -17,14 +17,23 @@ class solver:
         k_2 = np.array([0 for i in range(m)], dtype=float)
         k_3 = np.array([0 for i in range(m)], dtype=float)
         k_4 = np.array([0 for i in range(m)], dtype=float)
+
+        val = dx(t, u_t, m)
         for i in range(m):
-            k_1[i] = h * dx(t, u_t, m)[i]
+            k_1[i] = h * val[i]
+
+        val = dx(t + h / 2, u_t + 1 / 2 * k_1, m)
         for i in range(m):
-            k_2[i] = h * dx(t + h / 2, u_t + 1 / 2 * k_1, m)[i]
+            k_2[i] = h * val[i]
+
+        val = dx(t + h / 2, u_t + 1 / 2 * k_2, m)
         for i in range(m):
-            k_3[i] = h * dx(t + h / 2, u_t + 1 / 2 * k_2, m)[i]
+            k_3[i] = h * val[i]
+
+        val = dx(t + h, u_t + k_3, m)
         for i in range(m):
-            k_4[i] = h * dx(t + h, u_t + k_3, m)[i]
+            k_4[i] = h * val[i]
+
         u_t_out = u_t + 1 / 6 * (k_1 + 2 * k_2 + 2 * k_3 + k_4)
         return u_t_out
 
@@ -45,3 +54,18 @@ class solver:
         next_Model.update(CO2_Air = out_val[0], CO2_Top = out_val[1])
         return next_Model
 
+def myFunc(t, x, m):
+    func = np.array([0 for i in range(m)], dtype=float)
+    func[0] = 2 * x[0] + 3 * x[1]
+    func[1] = 3 * x[0] + 2 * x[1]
+    return func
+
+# initial_val = np.array([1.2, 0.3], dtype=float)
+# state = ModelState(0,0,0,0,0)
+# par = ModelParameter(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0)
+# gh = GreenHouseModel(par)
+# setpoint = ModelSetPoint
+# environment = ModelEnvironment()
+# sv = solver(state, gh, setpoint, environment)
+
+# print(sv.runge_kutta_solve(0,initial_val,2,0.1,myFunc))
