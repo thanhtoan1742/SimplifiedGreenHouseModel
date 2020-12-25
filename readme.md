@@ -3,3 +3,6 @@ A simplified green house model for the assignment of the 201-Math Modelling cour
 
 ## Report link:
 https://www.overleaf.com/9828649289hpkrtxqsbtdv
+
+## Koidra's model:
+https://github.com/Koidra/CEAOS
