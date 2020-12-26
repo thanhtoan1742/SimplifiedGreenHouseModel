@@ -339,7 +339,7 @@ class GreenHouseModel:
         self.state = state
         self.environment = environment
 
-        return self.d_CO2_Air(), self.d_CO2_Top()
+        return ModelState(CO2_Air=self.d_CO2_Air(), CO2_Top=self.d_CO2_Top())
 
 ###USE WHEN TESTING METHODS###
 # if __name__ == "__main__": 
