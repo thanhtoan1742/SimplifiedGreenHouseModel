@@ -4,7 +4,7 @@ from ModelState import *
 from ModelEnvironment import *
 from GreenHouseModel import *
 
-class solver:
+class ODESolver:
 
     def __init__(self, gh: GreenHouseModel):
         self.gh = gh
@@ -85,7 +85,7 @@ if __name__ == '__main__':
     gh = GreenHouseModel(par)
     setpoint = ModelSetPoint()
     environment = ModelEnvironment()
-    sv = solver(state, gh, setpoint, environment)
+    sv = ODESolver(state, gh, setpoint, environment)
 
     initial_val = np.array([0, 1], dtype=float)
     t = 0
