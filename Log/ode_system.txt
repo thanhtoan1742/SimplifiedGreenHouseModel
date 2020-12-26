@@ -1,0 +1,29 @@
+dx/dt = x - 2y - 2e^-t + 2
+
+dy/dt = 2x - y - 2e^-t + 1
+
+x(0) = 1
+
+y(0) = 1
+
+Nghiệm chính xác:
+
+x = e^-t
+
+y = 1
+
+--------------
+
+dx/dt = -y
+
+dy/dt = -x
+
+x(0) = -1
+
+y(0) = 1
+
+Nghiệm chính xác:
+
+x = -e^t
+
+y = e^t
