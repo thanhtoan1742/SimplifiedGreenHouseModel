@@ -13,81 +13,97 @@ class GreenHouseModel:
         self.state = None
         self.environment = None
 
-    def d_CO2_Air(self):
-        cap_CO2_Air = self.parameter.cap_CO2_Air
+    def d_CO2_Air(self): #
+        cap_CO2_Air = self.cap_CO2_Air()
         return (self.MC_BlowAir() + self.MC_ExtAir() + self.MC_PadAir() - self.MC_AirCan() - self.MC_AirTop() - self.MC_AirOut()) / cap_CO2_Air
 
-    def d_CO2_Top(self):
-        cap_CO2_Top = self.parameter.cap_CO2_Top
+    def d_CO2_Top(self): #
+        cap_CO2_Top = self.cap_CO2_Top()
         return (self.MC_AirTop() - self.MC_TopOut()) / cap_CO2_Top
 
-    def MC_BlowAir(self):
-        eta_HeatCO2 = constant.eta_HeatCO2
-        U_Blow = self.setPoint.U_Blow
-        P_Blow = self.parameter.P_Blow
-        A_Flr = self.parameter.A_Flr
+    def cap_CO2_Air(self): #
+        return self.parameter.h_Air
 
+    def cap_CO2_Top(self): #
+        return self.parameter.h_Gh - self.parameter.h_Air
+
+    def MC_BlowAir(self): #
+        U_Blow = self.setPoint.U_Blow
         if U_Blow == 0:
             return 0
 
+        eta_HeatCO2 = constant.eta_HeatCO2
+        P_Blow = self.parameter.P_Blow
+        A_Flr = self.parameter.A_Flr
+
         return (eta_HeatCO2 * U_Blow * P_Blow) / A_Flr
 
-    def MC_ExtAir(self):
+    def MC_ExtAir(self): #
         U_ExtCO2 = self.setPoint.U_ExtCO2
+        if U_ExtCO2 == 0:
+            return 0
+
         phi_ExtCO2 = self.parameter.phi_ExtCO2
         A_Flr = self.parameter.A_Flr
+
         return U_ExtCO2 * phi_ExtCO2 / A_Flr
 
-    def MC_PadAir(self):
+    def MC_PadAir(self): #
         U_Pad = self.setPoint.U_Pad
+        if U_Pad == 0:
+            return 0
+
         phi_Pad = self.parameter.phi_Pad
         A_Flr = self.parameter.A_Flr
         CO2_Out = self.environment.CO2_Out
         CO2_Air = self.state.CO2_Air
 
-        if U_Pad == 0:
-            return 0
-
         return (U_Pad * phi_Pad) / A_Flr * (CO2_Out - CO2_Air)
 
-    def MC_AirCan(self):
+    def MC_AirCan(self): #
         M_CH2O = constant.M_CH2O
         H_C_Buf = self.H_C_Buf()
         P = self.P()
         R = self.R()
         return  M_CH2O * H_C_Buf * (P - R)
 
-    def R(self):
+    def R(self): #
+        # R got simplified to 0
+        # return 0
+        C_gamma = constant.C_gamma
+        eta_CO2_Air_Stom = constant.eta_CO2_Air_Stom
+        T_Can = self.environment.T_Can
+        CO2_Air = self.state.CO2_Air
         P = self.P()
-        C_ComP = constant.C_ComP
-        CO2_Air_Stom = constant.CO2_Air_Stom
-        ComP = C_ComP * self.parameter.T_Can
-        CO2_Stom = CO2_Air_Stom * self.state.CO2_Air
-        return P * ComP / CO2_Stom
 
-    def H_C_Buf(self):
-        C_Buf = self.parameter.C_Buf
+        gamma = C_gamma * T_Can
+        CO2_Stom = eta_CO2_Air_Stom * CO2_Air
+        return P * gamma / CO2_Stom
+
+    def H_C_Buf(self): #
+        C_Buf = self.environment.C_Buf
         C_Max_Buf = constant.C_Max_Buf
-        if C_Buf > C_Max_Buf: return 0
+
+        if C_Buf > C_Max_Buf: 
+            return 0
         return 1
 
     def f_ThScr(self): 
-        p_Air = self.parameter.p_Air
-        p_Top = self.parameter.p_Top
-        K_ThScr = self.parameter.K_ThScr
         U_ThScr = self.setPoint.U_ThScr
+        # if U_ThScr == 0:
+        #     return 0
+
+        rho_Air = self.parameter.rho_Air
+        rho_Top = self.parameter.rho_Top
+        K_ThScr = self.parameter.K_ThScr
         T_Air = self.environment.T_Air
         T_Top = self.environment.T_Top
         g = constant.g
 
-
-        # if U_ThScr == 0:
-        #     return 0
-
-        p_Air_Mean = (p_Air + p_Top)/2
+        rho_Air_Mean = (rho_Air + rho_Top)/2
 
         screen = U_ThScr * K_ThScr * math.pow(math.fabs(T_Air-T_Top), 2/3)
-        no_screen = (1-U_ThScr)*pow( g*(1-U_ThScr)*math.fabs(p_Air-p_Top)/(2*p_Air_Mean), 1/2)
+        no_screen = (1-U_ThScr)*pow( g*(1-U_ThScr)*math.fabs(rho_Air-rho_Top)/(2*rho_Air_Mean), 1/2)
         return screen + no_screen
 
     def MC_AirTop(self):

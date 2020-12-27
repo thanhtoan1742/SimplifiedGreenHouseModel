@@ -11,7 +11,7 @@ class ODESolver:
         self.setpoint = None
         self.environment = None
 
-    def rk4__wrapper(self, state: ModelState, envir: ModelEnvironment, setpoint: ModelSetPoint, t0, t1):
+    def rk4_wrapper(self, state: ModelState, envir: ModelEnvironment, setpoint: ModelSetPoint, t0, t1):
         u_t = state.to_numpy_array()
         self.environment = envir
         self.setpoint = setpoint
@@ -64,6 +64,7 @@ class ODESolver:
         return u_t + h * du(u_t, t)
 
 
+#for checking correctness of rk4 and euler method using customized fx and dx
 def myDx(t, x):
     m = len(x)
     func = np.array([0 for i in range(m)], dtype=float)
@@ -77,7 +78,6 @@ def myFx(t, x):
     func[1] = np.exp(-t) * np.cos(t)
     return func
 
-#for checking correctness of rk4 and euler method using customized fx and dx
 if __name__ == '__main__':
 
     state = ModelState(0,0,0,0,0)

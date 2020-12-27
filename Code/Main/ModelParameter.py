@@ -1,26 +1,20 @@
 class ModelParameter:
-    def __init__(self, A_Flr, h_Air, h_Gh, 
-                P_Blow, phi_ExtCO2, phi_Pad, C_Buf, T_Can,
-                p_Air, p_Top, K_ThScr, eta_ShScrC_d, eta_ShScrC_w, C_Gh_d, C_Gh_w, v_Wind, h_SideRoof,
-                A_Roof, A_Side, c_leakage, h_Vent, sigma_InsScr,
-                Res, P_MLT, L_0, K, T_opt, k_T_opt, LAI, H_d, S):
-        self.h_Air = h_Air
-        self.h_Gh = h_Gh
+    def __init__(self,
+                A_Flr = None, h_Air = None, h_Gh = None, 
+                P_Blow = None, phi_ExtCO2 = None, phi_Pad = None, T_Can = None,
+                p_Air = None, p_Top = None, K_ThScr = None, eta_ShScrC_d = None, eta_ShScrC_w = None, C_Gh_d = None, C_Gh_w = None, v_Wind = None, h_SideRoof = None,
+                A_Roof = None, A_Side = None, c_leakage = None, h_Vent = None, sigma_InsScr = None,
+                Res = None, P_MLT = None, L_0 = None, K = None, T_opt = None, k_T_opt = None, LAI = None, H_d = None, S = None):
 
-        #MC_AirBlow
-        self.P_Blow = P_Blow
+        self.h_Air = h_Air #
+        self.h_Gh = h_Gh #
 
-        #MC_ExtAir
-        self.phi_ExtCO2 = phi_ExtCO2
+        self.P_Blow = P_Blow # x | x | x | x
+        self.phi_ExtCO2 = phi_ExtCO2 # x | 7.2e4 | 4.3e5 | x
+        self.phi_Pad = phi_Pad # x | x | x | 16.7
 
-        #MC_PadAir
-        self.phi_Pad = phi_Pad
-
-        #MC_AirCan
-        self.C_Buf = C_Buf
         self.T_Can = T_Can
 
-        #BACH
         self.p_Air = p_Air
         self.p_Top = p_Top
         self.K_ThScr = K_ThScr # x | 0.05e-3 | 0.25e-3 | 1e-3
@@ -37,10 +31,8 @@ class ModelParameter:
         self.h_Vent = h_Vent # 1.6 | 0.68 | 0.97 | x
         self.sigma_InsScr = sigma_InsScr # 0.33 | 1 | 1 | x
 
-        #NGUYEN
         self.phi_VentForced = 0 # x | x | x | 0
 
-        #P
         self.Res = Res
         self.P_MLT = P_MLT
         self.L_0 = L_0

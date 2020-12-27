@@ -6,10 +6,10 @@ g = 9.8
 eta_HeatCO2 = 0.057
 
 # MC_AirCan
-M_CH2O = 30
-C_Max_Buf = 20000
-C_ComP = 1.7
-CO2_Air_Stom = 0.67
+M_CH2O = 30e-3
+C_Max_Buf = 20e3
+C_gamma = 1.7
+eta_CO2_Air_Stom = 0.67
 
 #Bach
 eta_Roof_Thr = 0.9
