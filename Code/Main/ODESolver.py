@@ -4,14 +4,14 @@ from ModelState import *
 from ModelEnvironment import *
 from GreenHouseModel import *
 
-class solver:
+class ODESolver:
 
     def __init__(self, gh: GreenHouseModel):
         self.gh = gh
         self.setpoint = None
         self.environment = None
 
-    def rk4__wrapper(self, state: ModelState, envir: ModelEnvironment, setpoint: ModelSetPoint, t0, t1):
+    def rk4_wrapper(self, state: ModelState, envir: ModelEnvironment, setpoint: ModelSetPoint, t0, t1):
         u_t = state.to_numpy_array()
         self.environment = envir
         self.setpoint = setpoint
@@ -66,7 +66,12 @@ class solver:
         return u_t + h * du(u_t, t)
 
 
+<<<<<<< HEAD:Code/Main/ode_solver.py
 def myDx(x, t):
+=======
+#for checking correctness of rk4 and euler method using customized fx and dx
+def myDx(t, x):
+>>>>>>> a9c09cdd5830005bc0f8bee2eeed19c0a3bd2658:Code/Main/ODESolver.py
     m = len(x)
     func = np.array([0 for i in range(m)], dtype=float)
     func[0] = x[0] - 2 * x[1] - 2 * np.exp(-t) + 2
@@ -79,7 +84,6 @@ def myFx(x, t):
     func[1] = np.exp(-t) * np.cos(t)
     return func
 
-#for checking correctness of rk4 and euler method using customized fx and dx
 if __name__ == '__main__':
     np.set_printoptions(suppress=True)
     state = ModelState(0,0,0,0)
@@ -87,7 +91,11 @@ if __name__ == '__main__':
     gh = GreenHouseModel(par)
     setpoint = ModelSetPoint()
     environment = ModelEnvironment()
+<<<<<<< HEAD:Code/Main/ode_solver.py
     sv = solver(gh)
+=======
+    sv = ODESolver(state, gh, setpoint, environment)
+>>>>>>> a9c09cdd5830005bc0f8bee2eeed19c0a3bd2658:Code/Main/ODESolver.py
 
     initial_val = np.array([1, 1], dtype=float)
     t = 0
