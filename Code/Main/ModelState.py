@@ -1,7 +1,7 @@
 import numpy as np
 
 class ModelState:
-    def __init__(self, CO2_Air, CO2_Top, VP_Air, VP_Top):
+    def __init__(self, CO2_Air = 0, CO2_Top = 0, VP_Air = 0, VP_Top = 0):
         self.CO2_Air = CO2_Air
         self.CO2_Top = CO2_Top
         self.VP_Air = VP_Air
