@@ -262,7 +262,6 @@ class GreenHouseModel:
         CO2_Out = self.environment.CO2_Out
         return (f_VentSide + f_VentForced) * (CO2_Air - CO2_Out)
 
-
     def P(self):
         Res = self.parameter.Res
         CO2_Air = self.state.CO2_Air
@@ -337,7 +336,115 @@ class GreenHouseModel:
 
         return (1 + math.exp((-H_d ** 2 + T_opt * S) / (R_Const * -H_d * T_opt))) / (1 + math.exp((-H_d ** 2 + T_Air * S) / (R_Const * H_d * T_Air)))
 
+#############################################################
+
+    def d_VP_Top(self):
+        cap_VP_Top = self.cap_VP_Top()
+        return (self.MV_AirTop() - self.MV_TopCov_in() -  self.MV_TopOut()) / cap_VP_Top
+
+    def cap_VP_Top(self):
+        M_H2O = constant.M_H2O
+        R = constant.R
+        T_Air = self.environment.T_Air
+        h_Top = self.h_Top()
+        return (M_H2O * h_Top) / (T_Air + 273.15)
+
+    def h_Top(self):
+        h_Air = self.parameter.h_Air
+        h_Gh = self.parameter.h_Gh
+        return (h_Air + h_Gh) / 2
+
+    def MV_AirOut_Pad(self):
+        f_Pad = self.f_Pad()
+        M_H2O = constant.M_H2O
+        R = constant.R
+        VP_Air = self.state.VP_Air
+        T_Air = self.environment.T_Air
+        return f_Pad * M_H2O / R * (VP_Air / (T_Air + 273.15))
+
+    def MV_AirOut(self):
+        f_AirOut = self.f_VentSide() + self.f_VentForced()
+        M_H2O = constant.M_H2O
+        R = constant.R
+        VP_Air = self.state.VP_Air
+        VP_Out = self.parameter.VP_Out
+        T_Air = self.environment.T_Air
+        T_Out = self.environment.T_Out
+        return M_H2O * f_AirOut / R * (VP_Air / (T_Air + 273.15) - VP_Out / (T_Out + 273.15))
+
+    def MV_AirTop(self):
+        f_ThScr = self.f_ThScr()
+        M_H2O = constant.M_H2O
+        R = constant.R
+        VP_Air = self.state.VP_Air
+        VP_Top = self.state.VP_Top
+        T_Air = self.environment.T_Air
+        T_Top = self.environment.T_Top
+        return M_H2O * f_ThScr / R * (VP_Air / (T_Air + 273.15) - VP_Top / (T_Top + 273.15))
+
+
+    def MV_AirMech(self):
+        VP_Air = self.state.VP_Air
+        VP_MechCool = self.saturation_VP(self.environment.T_MechCool)
+        HEC_MechAir = self.HEC_MechAir()
+        S_MV12 = constant.S_MV12
+        res = 1 / (1 + math.exp(S_MV12 * (VP_Air - VP_MechCool))) * 6.4 * 1e-9
+        res = res * HEC_MechAir * (VP_Air - VP_MechCool)
+        return res
+
+    def HEC_MechAir(self):
+        U_MechCool = self.setPoint.U_MechCool
+        COP_MechCool = self.parameter.COP_MechCool
+        P_MechCool = self.parameter.P_MechCool
+        A_Flr = self.parameter.A_Flr
+        T_Air = self.environment.T_Air
+        T_MechCool = self.environment.T_MechCool
+        VP_Air = self.state.VP_Air
+        VP_MechCool = self.saturation_VP(T_MechCool)
+        delta_H = constant.delta_H
+        res = U_MechCool * COP_MechCool * P_MechCool / A_Flr
+        res = res / (T_Air - T_MechCool + 6.4 * 1e-9 * delta_H * (VP_Air - VP_MechCool))
+        return res
+
+    def MV_AirTop(self):
+        M_H2O = constant.M_H2O
+        R = constant.R
+        f_ThScr = self.f_ThScr()
+        VP_Air = self.state.VP_Air
+        VP_Top = self.state.VP_Top
+        T_Air = self.environment.T_Air
+        T_Top = self.environment.T_Top
+        return M_H2O * R * f_ThScr(VP_Air / (T_Air + 273.15) - VP_Top / (T_Top + 273.15))
+
+    def MV_TopOut(self):
+        M_H2O = constant.M_H2O
+        R = constant.R
+        f_VentRoof = self.f_VentRoof()
+        VP_Top = self.state.VP_Top
+        VP_Out = self.environment.VP_Out
+        T_Top = self.environment.T_Top
+        T_Out = self.environment.T_Out
+        return M_H2O * R * f_VentRoof(VP_Top / (T_Top + 273.15) - VP_Out / (T_Out + 273.15))
+
+    def MV_TopCov_in(self):
+        VP_Top = self.state.VP_Top
+        VP_Cov_in = self.saturation_VP(self.environment.T_Cov_in)
+        HEC_TopCov_in = self.HEC_TopCov_in()
+        S_MV12 = constant.S_MV12
+        res = 1 / (1 + math.exp(S_MV12 * (VP_Top - VP_Cov_in))) * 6.4 * 1e-9
+        res = res * HEC_TopCov_in * (VP_Top - VP_Cov_in)
+        return res
     
+    def saturation_VP(self, temp):
+        return 610.78 * math.exp(temp / (temp + 238.3) * 17.2694)
+    
+    def HEC_TopCov_in(self):
+        c_HECin = self.parameter.c_HECin
+        T_Top = self.environment.T_Top
+        T_Cov_in = self.environment.T_Cov_in
+        A_Cov = self.parameter.A_Cov
+        A_Flr = self.parameter.A_Flr
+        return c_HECin * ((T_Top - T_Cov_in) ** 0.33) * A_Cov / A_Flr
 
     def __call__(self, setPoint: ModelSetPoint, state: ModelState, environment: ModelEnvironment):
         self.setPoint = setPoint
