@@ -354,6 +354,14 @@ class GreenHouseModel:
         h_Gh = self.parameter.h_Gh
         return (h_Air + h_Gh) / 2
 
+    def MV_PadAir(self):
+        rho_Air = self.parameter.rho_Air
+        f_Pad = self.f_Pad()
+        eta_Pad = self.parameter.eta_Pad
+        x_Pad = self.environment.x_Pad
+        x_Out = self.environment.x_Out
+        return rho_Air * f_Pad * (eta_Pad * (x_Pad - x_Out) + x_Out)
+
     def MV_BlowAir(self):
         eta_HeatVap = constant.eta_HeatVap
         U_Blow = self.setPoint.U_Blow
