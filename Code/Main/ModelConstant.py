@@ -18,6 +18,6 @@ eta_Roof_Thr = 0.9
 R_Const = 8.314 # 0.082 Depends on dataset
 
 #Duy_Thinh
-#cap_MV_Top
+eta_HeatVap = 4.43 * 1e-8
 M_H2O = 18
 S_MV12 = -0.1

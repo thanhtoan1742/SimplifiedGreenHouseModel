@@ -354,23 +354,28 @@ class GreenHouseModel:
         h_Gh = self.parameter.h_Gh
         return (h_Air + h_Gh) / 2
 
-    def MV_AirOut_Pad(self):
-        f_Pad = self.f_Pad()
-        M_H2O = constant.M_H2O
-        R = constant.R
-        VP_Air = self.state.VP_Air
-        T_Air = self.environment.T_Air
-        return f_Pad * M_H2O / R * (VP_Air / (T_Air + 273.15))
+    def MV_BlowAir(self):
+        eta_HeatVap = constant.eta_HeatVap
+        U_Blow = self.setPoint.U_Blow
+        P_Blow = self.parameter.P_Blow
+        A_Flr = self.parameter.A_Flr
 
-    def MV_AirOut(self):
-        f_AirOut = self.f_VentSide() + self.f_VentForced()
-        M_H2O = constant.M_H2O
-        R = constant.R
+        return (eta_HeatVap * U_Blow * P_Blow) / A_Flr
+
+    def MV_AirThSrc(self):
         VP_Air = self.state.VP_Air
-        VP_Out = self.parameter.VP_Out
+        VP_ThScr = self.saturation_VP(self.environment.T_ThSrc)
+        HEC_ThScr = self.HEC_ThSrc()
+        S_MV12 = constant.S_MV12
+        res = 1 / (1 + math.exp(S_MV12 * (VP_Air - VP_ThScr))) * 6.4 * 1e-9
+        res = res * HEC_ThScr * (VP_Air - VP_ThScr)
+        return res
+
+    def HEC_ThSrc(self):
+        U_ThScr = self.setPoint.U_ThScr
         T_Air = self.environment.T_Air
-        T_Out = self.environment.T_Out
-        return M_H2O * f_AirOut / R * (VP_Air / (T_Air + 273.15) - VP_Out / (T_Out + 273.15))
+        T_ThSrc = self.environment.T_ThSrc
+        return 1.7 * U_ThScr * (abs(T_Air - T_ThSrc) ** 0.33)
 
     def MV_AirTop(self):
         f_ThScr = self.f_ThScr()
@@ -382,6 +387,23 @@ class GreenHouseModel:
         T_Top = self.environment.T_Top
         return M_H2O * f_ThScr / R * (VP_Air / (T_Air + 273.15) - VP_Top / (T_Top + 273.15))
 
+    def MV_AirOut(self):
+        f_AirOut = self.f_VentSide() + self.f_VentForced()
+        M_H2O = constant.M_H2O
+        R = constant.R
+        VP_Air = self.state.VP_Air
+        VP_Out = self.parameter.VP_Out
+        T_Air = self.environment.T_Air
+        T_Out = self.environment.T_Out
+        return M_H2O * f_AirOut / R * (VP_Air / (T_Air + 273.15) - VP_Out / (T_Out + 273.15))
+
+    def MV_AirOut_Pad(self):
+        f_Pad = self.f_Pad()
+        M_H2O = constant.M_H2O
+        R = constant.R
+        VP_Air = self.state.VP_Air
+        T_Air = self.environment.T_Air
+        return f_Pad * M_H2O / R * (VP_Air / (T_Air + 273.15))
 
     def MV_AirMech(self):
         VP_Air = self.state.VP_Air
@@ -405,16 +427,6 @@ class GreenHouseModel:
         res = U_MechCool * COP_MechCool * P_MechCool / A_Flr
         res = res / (T_Air - T_MechCool + 6.4 * 1e-9 * delta_H * (VP_Air - VP_MechCool))
         return res
-
-    def MV_AirTop(self):
-        M_H2O = constant.M_H2O
-        R = constant.R
-        f_ThScr = self.f_ThScr()
-        VP_Air = self.state.VP_Air
-        VP_Top = self.state.VP_Top
-        T_Air = self.environment.T_Air
-        T_Top = self.environment.T_Top
-        return M_H2O * R * f_ThScr(VP_Air / (T_Air + 273.15) - VP_Top / (T_Top + 273.15))
 
     def MV_TopOut(self):
         M_H2O = constant.M_H2O
