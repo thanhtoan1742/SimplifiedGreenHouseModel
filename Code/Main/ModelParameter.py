@@ -5,7 +5,7 @@ class ModelParameter:
                 p_Air = None, p_Top = None, K_ThScr = None, eta_ShScrC_d = None, eta_ShScrC_w = None, C_Gh_d = None, C_Gh_w = None, v_Wind = None, h_SideRoof = None,
                 A_Roof = None, A_Side = None, c_leakage = None, h_Vent = None, sigma_InsScr = None,
                 Res = None, P_MLT = None, L_0 = None, K = None, T_opt = None, k_T_opt = None, LAI = None, H_d = None, S = None,
-                c_HECin = None, A_Cov = None, COP_MechCool = None, P_MechCool = None):
+                c_HECin = None, A_Cov = None, COP_MechCool = None, P_MechCool = None, eta_Pad = None):
 
         self.h_Air = h_Air # 4.0 | 3.8 | 4.7 | 5.9
         self.h_Gh = h_Gh # 4.8 | 4.2 | 5.1 | 6.1
@@ -48,3 +48,4 @@ class ModelParameter:
         self.A_Cov = A_Cov
         self.COP_MechCool = COP_MechCool # x | x | x | x 
         self.P_MechCool = P_MechCool # x | x | x | x
+        self.eta_Pad = eta_Pad  # x | x | x | x
