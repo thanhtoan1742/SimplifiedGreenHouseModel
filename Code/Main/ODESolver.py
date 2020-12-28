@@ -66,12 +66,8 @@ class ODESolver:
         return u_t + h * du(u_t, t)
 
 
-<<<<<<< HEAD:Code/Main/ode_solver.py
 def myDx(x, t):
-=======
 #for checking correctness of rk4 and euler method using customized fx and dx
-def myDx(t, x):
->>>>>>> a9c09cdd5830005bc0f8bee2eeed19c0a3bd2658:Code/Main/ODESolver.py
     m = len(x)
     func = np.array([0 for i in range(m)], dtype=float)
     func[0] = x[0] - 2 * x[1] - 2 * np.exp(-t) + 2
@@ -87,15 +83,11 @@ def myFx(x, t):
 if __name__ == '__main__':
     np.set_printoptions(suppress=True)
     state = ModelState(0,0,0,0)
-    par = ModelParameter(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0)
+    par = ModelParameter(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0)
     gh = GreenHouseModel(par)
     setpoint = ModelSetPoint()
     environment = ModelEnvironment()
-<<<<<<< HEAD:Code/Main/ode_solver.py
-    sv = solver(gh)
-=======
-    sv = ODESolver(state, gh, setpoint, environment)
->>>>>>> a9c09cdd5830005bc0f8bee2eeed19c0a3bd2658:Code/Main/ODESolver.py
+    sv = ODESolver(gh)
 
     initial_val = np.array([1, 1], dtype=float)
     t = 0
