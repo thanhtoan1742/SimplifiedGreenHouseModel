@@ -399,14 +399,23 @@ class GreenHouseModel:
     def evap3(self):
         c_day_evap3 = constant.c_day_evap3
         c_night_evap3 = constant.c_night_evap3
-        S_r_s = constant.S_r_s
+        S_r_s = self.S_r_s()
         return c_day_evap3*(1-S_r_s) + c_night_evap3*S_r_s
 
     def evap4(self):
         c_day_evap4 = constant.c_day_evap4
         c_night_evap4 = constant.c_night_evap4
-        S_r_s = constant.S_r_s
+        S_r_s = self.S_r_s()
         return c_day_evap4*(1-S_r_s) + c_night_evap4*S_r_s
+
+    def S_r_s(self):
+        s_r_s = constant.s_r_s
+        R_Can_SP = constant.R_Can_SP
+        R_Can = self.R_Can()
+        return 1/ ( 1 + math.exp(s_r_s* (R_Can - R_Can_SP) ) ) 
+
+    def R_Can(self):
+        return 0.144
 
     def VP_Can(self):
 
