@@ -401,15 +401,18 @@ class GreenHouseModel:
             CO2_Air = self.state.CO2_Air
             return 1 + c_evap3*( (eta_mg_ppm*CO2_Air-200)**2 )
         else:
-            return 1 + self.evap4()*( (self.VP_Can() - self.VP_Air())**2 )
+            VP_Can = self.saturation_VP(self.environment.T_Can)
+            VP_Air = self.saturation_VP(self.environment.T_Air)
+            c_evap4 = self.c_evap4()
+            return 1 + c_evap4()*( (VP_Can - VP_Air)**2 )
 
-    def evap3(self):
+    def c_evap3(self):
         c_day_evap3 = constant.c_day_evap3
         c_night_evap3 = constant.c_night_evap3
         S_r_s = self.S_r_s()
         return c_day_evap3*(1-S_r_s) + c_night_evap3*S_r_s
 
-    def evap4(self):
+    def c_evap4(self):
         c_day_evap4 = constant.c_day_evap4
         c_night_evap4 = constant.c_night_evap4
         S_r_s = self.S_r_s()
@@ -500,6 +503,12 @@ class GreenHouseModel:
         VP_Air = self.state.VP_Air
         T_Air = self.environment.T_Air
         return f_Pad * M_H2O / R * (VP_Air / (T_Air + 273.15))
+
+    def f_Pad(self):
+        U_Pad = self.setPoint.U_Pad
+        phi_Pad = self.parameter.phi_Pad
+        A_Flr = self.parameter.A_Flr
+        return U_Pad*phi_Pad/A_Flr
 
     def MV_AirMech(self):
         VP_Air = self.state.VP_Air
