@@ -422,10 +422,25 @@ class GreenHouseModel:
         return 1/ ( 1 + math.exp(s_r_s* (R_Can - R_Can_SP) ) ) 
 
     def MV_FogAir(self):
-        U_Fog = self.state.U_Fog
+        U_Fog = self.setPoint.U_Fog
         phi_Fog = self.parameter.phi_Fog
         A_Flr = self.parameter.A_Flr
         return U_Fog*phi_Fog/A_Flr
+
+    def MV_AirThScr(self):
+        s_MV12 = constant.S_MV12
+        VP_Air = self.state.VP_Air
+        VP_ThScr = self.saturation_VP(self.environment.T_ThScr)
+        HEC_AirThScr = self.HEC_AirThScr()
+        tmp1 = 1/( 1 + math.exp( s_MV12*(VP_Air - VP_ThScr) ) ) 
+        tmp2 = 6.4*1e-9*HEC_AirThScr*(VP_Air-VP_ThScr)
+        return tmp1*tmp2
+
+    def HEC_AirThScr(self): 
+        U_ThScr = self.setPoint.U_ThScr
+        T_Air = self.environment.T_Air 
+        T_ThScr = self.environment.T_ThScr
+        return 1.7*U_ThScr*( math.fabs(T_Air - T_ThScr)**0.33 )
 
     def MV_PadAir(self):
         rho_Air = self.parameter.rho_Air
