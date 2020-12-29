@@ -381,10 +381,14 @@ class GreenHouseModel:
 
     def r_s(self):
         r_s_min = constant.r_s_min
+        rf_R = self.rf('R')
+        rf_CO2 = self.rf('CO2')
+        rf_VP = self.rf('VP')
+        return r_s_min*rf_R*rf_CO2*rf_VP
     
     def rf(self, mode):
         if mode == 'R':
-            R_Can = self.R_Can()
+            R_Can = constant.R_Can
             c_evap1 = constant.c_evap1
             c_evap2 = constant.c_evap2
             return (R_Can + c_evap1)/(R_Can + c_evap2)
@@ -411,11 +415,8 @@ class GreenHouseModel:
     def S_r_s(self):
         s_r_s = constant.s_r_s
         R_Can_SP = constant.R_Can_SP
-        R_Can = self.R_Can()
+        R_Can = constant.R_Can
         return 1/ ( 1 + math.exp(s_r_s* (R_Can - R_Can_SP) ) ) 
-
-    def R_Can(self):
-        return 0.144
 
     def VP_Can(self):
 

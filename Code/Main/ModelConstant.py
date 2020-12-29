@@ -29,6 +29,7 @@ c_night_evap4 = 5.2*1e-6
 eta_mg_ppm = 0.554
 s_r_s = -1
 R_Can_SP = 5
+R_Can = 1362
 
 #P
 R_Const = 8.314 # 0.082 Depends on dataset
