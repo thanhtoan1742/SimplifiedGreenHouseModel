@@ -367,6 +367,9 @@ class GreenHouseModel:
         return (h_Air + h_Gh) / 2
 
     def MV_CanAir(self):
+        VEC_CanAir = self.VEC_CanAir()
+        VP_Can = self.saturation_VP(self.environment.T_Can)
+        VP_Air = self.saturation_VP(self.environment.T_Air)
         return self.VEC_CanAir() * (self.VP_Can() - self.VP_Air())
 
     def VEC_CanAir(self):
@@ -417,10 +420,6 @@ class GreenHouseModel:
         R_Can_SP = constant.R_Can_SP
         R_Can = constant.R_Can
         return 1/ ( 1 + math.exp(s_r_s* (R_Can - R_Can_SP) ) ) 
-
-    def VP_Can(self):
-
-    def VP_Air(self):
 
     def MV_PadAir(self):
         rho_Air = self.parameter.rho_Air
