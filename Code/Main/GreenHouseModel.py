@@ -1,3 +1,5 @@
+# f_VentRoofSide is extremely unsafe
+# C_w and C_d is unsafe at the fourth green house
 import math
 
 import ModelConstant as constant 
@@ -59,35 +61,6 @@ class GreenHouseModel:
         CO2_Air = self.state.CO2_Air
 
         return (U_Pad * phi_Pad) / A_Flr * (CO2_Out - CO2_Air)
-
-    def MC_AirCan(self): #
-        M_CH2O = constant.M_CH2O
-        H_C_Buf = self.H_C_Buf()
-        P = self.P()
-        R = self.R()
-        return  M_CH2O * H_C_Buf * (P - R)
-
-    def R(self): #
-        # R got simplified to 0
-        # return 0
-        C_gamma = constant.C_gamma
-        eta_CO2_Air_Stom = constant.eta_CO2_Air_Stom
-        T_Can = self.environment.T_Can
-        CO2_Air = self.state.CO2_Air
-        P = self.P()
-
-        gamma = C_gamma * T_Can
-        CO2_Stom = eta_CO2_Air_Stom * CO2_Air
-        return P * gamma / CO2_Stom
-
-    def H_C_Buf(self): #
-        C_Buf = self.environment.C_Buf
-        C_Max_Buf = constant.C_Max_Buf
-
-        if C_Buf > C_Max_Buf: 
-            return 0
-        return 1
-
     def f_ThScr(self): #
         U_ThScr = self.setPoint.U_ThScr
         rho_Air = self.rho_Air()
@@ -164,12 +137,12 @@ class GreenHouseModel:
         else:
             return v_Wind*c_leakage
 
-    def dd_f_VentRoofSide(self):
+    def dd_f_VentRoofSide(self): # not safe, need safety
         U_Roof = self.setPoint.U_Roof
         U_Side = self.setPoint.U_Side
         T_Air = self.environment.T_Air
         T_Out = self.environment.T_Out
-        v_Wind = self.parameter.v_Wind
+        v_Wind = self.environment.v_Wind
         h_SideRoof = self.parameter.h_SideRoof
         A_Flr = self.parameter.A_Flr
         A_Side = self.parameter.A_Side
@@ -180,15 +153,19 @@ class GreenHouseModel:
 
         T_Mean_Air = (T_Air + T_Out)/2
 
-        T_diff_1 =  math.pow(U_Roof*U_Side*A_Roof*A_Side, 2) / ( math.pow(U_Roof*A_Roof, 2) + math.pow(U_Side*A_Side, 2) ) 
-        T_diff_2 = (2 * g * h_SideRoof * (T_Air-T_Out) ) /T_Mean_Air
-        P_diff = math.pow( (U_Roof*A_Roof + U_Side*A_Side)/2, 2) * C_w*math.pow(v_Wind, 2)
-        return (C_d / A_Flr) * math.pow(T_diff_1 * T_diff_2 + P_diff, 1/2)
+        temp1 =  math.pow(U_Roof*U_Side*A_Roof*A_Side, 2) / ( math.pow(U_Roof*A_Roof, 2) + math.pow(U_Side*A_Side, 2) ) 
+        temp2 = (2 * g * h_SideRoof * (T_Air-T_Out) ) /T_Mean_Air
+        temp3 = math.pow( (U_Roof*A_Roof + U_Side*A_Side)/2, 2) * C_w*math.pow(v_Wind, 2)
+        return (C_d / A_Flr) * math.pow(temp1 * temp2 + temp3, 1/2)
 
-    def dd_f_VentRoof(self):
+    def dd_f_VentRoof(self): #
         U_Roof = self.setPoint.U_Roof
+        if U_Roof == 0:
+            return 0
+
         T_Air = self.environment.T_Air
         T_Out = self.environment.T_Out
+        T_Mean_Air = (T_Air + T_Out)/2
         v_Wind = self.environment.v_Wind
         A_Roof = self.parameter.A_Roof
         A_Flr = self.parameter.A_Flr
@@ -197,11 +174,10 @@ class GreenHouseModel:
         C_w = self.C_w()
         g = constant.g
 
-        T_Mean_Air = (T_Air + T_Out)/2
         tmp1 = C_d*U_Roof*A_Roof/(2*A_Flr)
         tmp2 = g * h_Vent * (T_Air - T_Out)/(2*T_Mean_Air) + C_w*pow(v_Wind, 2) 
 
-        return tmp1*pow(tmp2,1/2)
+        return tmp1*math.pow(tmp2,1/2)
 
     def dd_f_VentSide(self): #
         U_Side = self.setPoint.U_Side
@@ -217,23 +193,21 @@ class GreenHouseModel:
         return C_d * U_Side * A_Side * v_Wind * math.pow(C_w, 0.5) / (2 * A_Flr)
 
 
-    def f_VentRoof(self):
+    def f_VentRoof(self): # not safe
         U_ThScr = self.setPoint.U_ThScr
         eta_InsScr = self.eta_InsScr()
         dd_f_VentRoof = self.dd_f_VentRoof()
         dd_f_VentRoofSide = self.dd_f_VentRoofSide()
         f_leakage = self.f_leakage()
-
         eta_Roof = self.parameter.A_Roof/self.parameter.A_Flr
-
         eta_Roof_Thr = constant.eta_Roof_Thr
 
         if (eta_Roof >= eta_Roof_Thr):
-            return eta_InsScr * dd_f_VentRoof() + 0.5*f_leakage
+            return eta_InsScr * dd_f_VentRoof + 0.5*f_leakage
         else:
-            tmp1 = U_ThScr*dd_f_VentRoof
-            tmp2 = (1-U_ThScr) * dd_f_VentRoofSide*eta_Roof
-            return eta_InsScr*(tmp1 + tmp2) + 0.5*f_leakage
+            sreen = U_ThScr*dd_f_VentRoof
+            no_screen = (1-U_ThScr) * dd_f_VentRoofSide*eta_Roof
+            return eta_InsScr*(sreen + no_screen) + 0.5*f_leakage
 
     def f_VentForced(self): #
         U_VentForced = self.setPoint.U_VentForced
@@ -261,7 +235,7 @@ class GreenHouseModel:
         else:
             return eta_InsScr * (U_ThScr*dd_f_VentSide + (1-U_ThScr)*dd_f_VentRoofSide*eta_Side) +  0.5*f_leakage
 
-    def MC_TopOut(self):
+    def MC_TopOut(self): #
         f_VentRoof = self.f_VentRoof()
         CO2_Air = self.state.CO2_Air
         CO2_Top = self.state.CO2_Top
@@ -275,8 +249,36 @@ class GreenHouseModel:
 
         return (f_VentSide + f_VentForced) * (CO2_Air - CO2_Out)
 
+    def MC_AirCan(self): #
+        M_CH2O = constant.M_CH2O
+        H_C_Buf = self.H_C_Buf()
+        P = self.P()
+        R = self.R()
+        return  M_CH2O * H_C_Buf * (P - R)
+
+    def R(self): #
+        # R got simplified to 0
+        return 0
+        C_gamma = constant.C_gamma
+        eta_CO2_Air_Stom = constant.eta_CO2_Air_Stom
+        T_Can = self.environment.T_Can
+        CO2_Air = self.state.CO2_Air
+        P = self.P()
+
+        gamma = C_gamma * T_Can
+        CO2_Stom = eta_CO2_Air_Stom * CO2_Air
+        return P * gamma / CO2_Stom
+
+    def H_C_Buf(self): #
+        C_Buf = self.environment.C_Buf
+        C_Max_Buf = constant.C_Max_Buf
+
+        if C_Buf > C_Max_Buf: 
+            return 0
+        return 1
+
     def P(self):
-        Res = self.parameter.Res
+        Res = constant.Res
         CO2_Air = self.state.CO2_Air
         CO2_05 = self.CO2_05()
         P_Max = self.P_Max()
@@ -295,7 +297,7 @@ class GreenHouseModel:
 
     def CO2_05(self):
         CO2_Air = self.state.CO2_Air
-        Res = self.parameter.Res
+        Res = constant.Res
         P_Max = self.P_Max()
 
         return CO2_Air - 0.5*Res*P_Max
@@ -332,19 +334,18 @@ class GreenHouseModel:
         k_T_opt = self.parameter.k_T_opt
         LAI = self.parameter.LAI
         T_Air = self.environment.T_Air
-        H_a = self.parameter.H_a
+        H_a = constant.H_a
 
-        R_Const = constant.R_Const
+        R= constant.R
 
-        return LAI * k_T_opt * math.exp(-H_a * (T_opt - T_Air) / (R_Const * T_opt * T_Air))
+        return LAI * k_T_opt * math.exp(-H_a * (T_opt - T_Air) / (R* T_opt * T_Air))
 
     # R_const in ModelConstant (discriminate with R() respiratory func in MCCanAir)
     def f(self):
-        H_d = self.parameter.H_d
+        H_d = constant.H_d
         S = self.parameter.S
         T_opt = self.parameter.T_opt
         T_Air = self.environment.T_Air
-
         R= constant.R
 
         return (1 + math.exp((-H_d ** 2 + T_opt * S) / (R* -H_d * T_opt))) / (1 + math.exp((-H_d ** 2 + T_Air * S) / (R* H_d * T_Air)))
