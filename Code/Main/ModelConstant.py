@@ -27,6 +27,7 @@ c_night_evap3 = 1.1*1e-11
 c_day_evap4 = 4.3*1e-6
 c_night_evap4 = 5.2*1e-6
 eta_mg_ppm = 0.554
+S_r_s = -1
 
 #P
 R_Const = 8.314 # 0.082 Depends on dataset

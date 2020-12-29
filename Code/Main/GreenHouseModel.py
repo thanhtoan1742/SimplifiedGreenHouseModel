@@ -396,6 +396,18 @@ class GreenHouseModel:
         else:
             return 1 + self.evap4()*( (self.VP_Can() - self.VP_Air())**2 )
 
+    def evap3(self):
+        c_day_evap3 = constant.c_day_evap3
+        c_night_evap3 = constant.c_night_evap3
+        S_r_s = constant.S_r_s
+        return c_day_evap3*(1-S_r_s) + c_night_evap3*S_r_s
+
+    def evap4(self):
+        c_day_evap4 = constant.c_day_evap4
+        c_night_evap4 = constant.c_night_evap4
+        S_r_s = constant.S_r_s
+        return c_day_evap4*(1-S_r_s) + c_night_evap4*S_r_s
+
     def VP_Can(self):
 
     def VP_Air(self):
