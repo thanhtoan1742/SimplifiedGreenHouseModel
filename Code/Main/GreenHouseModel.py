@@ -379,6 +379,23 @@ class GreenHouseModel:
         r_s = self.r_s()
         return 2*rho_Air*c_p_Air*LAI / (delta_H*gamma* (r_b - r_s))
 
+    def r_s(self):
+        r_s_min = constant.r_s_min
+    
+    def rf(self, mode):
+        if mode == 'R':
+            R_Can = self.R_Can()
+            c_evap1 = constant.c_evap1
+            c_evap2 = constant.c_evap2
+            return (R_Can + c_evap1)/(R_Can + c_evap2)
+        elif mode == 'CO2':
+            c_evap3 = self.c_evap3()
+            eta_mg_ppm = constant.eta_mg_ppm
+            CO2_Air = self.state.CO2_Air
+            return 1 + c_evap3*( (eta_mg_ppm*CO2_Air-200)**2 )
+        else:
+            return 1 + self.evap4()*( (self.VP_Can() - self.VP_Air())**2 )
+
     def VP_Can(self):
 
     def VP_Air(self):
