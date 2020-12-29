@@ -38,3 +38,6 @@ R_Const = 8.314 # 0.082 Depends on dataset
 eta_HeatVap = 4.43 * 1e-8
 M_H2O = 18
 S_MV12 = -0.1
+
+rho_Air_0 = 1.20
+M_Air = 28.96
