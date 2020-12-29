@@ -366,6 +366,23 @@ class GreenHouseModel:
         h_Gh = self.parameter.h_Gh
         return (h_Air + h_Gh) / 2
 
+    def MV_CanAir(self):
+        return self.VEC_CanAir() * (self.VP_Can() - self.VP_Air())
+
+    def VEC_CanAir(self):
+        rho_Air = self.parameter.rho_Air
+        c_p_Air = constant.c_p_Air
+        LAI = self.parameter.LAI
+        delta_H = constant.delta_H
+        gamma = constant.gamma
+        r_b = constant.r_b
+        r_s = self.r_s()
+        return 2*rho_Air*c_p_Air*LAI / (delta_H*gamma* (r_b - r_s))
+
+    def VP_Can(self):
+
+    def VP_Air(self):
+
     def MV_PadAir(self):
         rho_Air = self.parameter.rho_Air
         f_Pad = self.f_Pad()

@@ -2,7 +2,7 @@ class ModelParameter:
     def __init__(self,
                 A_Flr = None, h_Air = None, h_Gh = None, 
                 P_Blow = None, phi_ExtCO2 = None, phi_Pad = None, T_Can = None,
-                p_Air = None, p_Top = None, K_ThScr = None, eta_ShScrC_d = None, eta_ShScrC_w = None, C_Gh_d = None, C_Gh_w = None, v_Wind = None, h_SideRoof = None,
+                rho_Air = None, rho_Top = None, K_ThScr = None, eta_ShScrC_d = None, eta_ShScrC_w = None, C_Gh_d = None, C_Gh_w = None, v_Wind = None, h_SideRoof = None,
                 A_Roof = None, A_Side = None, c_leakage = None, h_Vent = None, sigma_InsScr = None,
                 Res = None, P_MLT = None, L_0 = None, K = None, T_opt = None, k_T_opt = None, LAI = None, H_d = None, S = None,
                 c_HECin = None, A_Cov = None, COP_MechCool = None, P_MechCool = None, eta_Pad = None):
@@ -16,8 +16,8 @@ class ModelParameter:
 
         self.T_Can = T_Can
 
-        self.p_Air = p_Air
-        self.p_Top = p_Top
+        self.rho_Air = rho_Air
+        self.rho_Top = rho_Top
         self.K_ThScr = K_ThScr # x | 0.05e-3 | 0.25e-3 | 1e-3
         self.eta_ShScrC_d = eta_ShScrC_d # x | x | x | x
         self.eta_ShScrC_w = eta_ShScrC_w # x | x | x | x

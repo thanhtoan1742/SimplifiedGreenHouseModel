@@ -15,6 +15,9 @@ eta_CO2_Air_Stom = 0.67
 eta_Roof_Thr = 0.9
 R = 8.314*1e3
 delta_H = 2.45*1e6
+c_p_Air = 1e3
+gamma = 65.8
+r_b = 275
 
 #P
 R_Const = 8.314 # 0.082 Depends on dataset
