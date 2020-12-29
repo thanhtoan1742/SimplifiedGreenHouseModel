@@ -338,16 +338,28 @@ class GreenHouseModel:
 
 #############################################################
 
+    def d_VP_Air(self):
+        return (self.MV_CanAir() + self.MV_PadAir() + self.MV_FogAir() + self.MV_BlowAir() \
+            - self.MV_AirThScr() - self.MV_AirTop() - self.MV_AirOut() - self.MV_AirOut_Pad() 
+            - self.MV_AirMech) / self.cap_VP_Air()
+
     def d_VP_Top(self):
         cap_VP_Top = self.cap_VP_Top()
         return (self.MV_AirTop() - self.MV_TopCov_in() -  self.MV_TopOut()) / cap_VP_Top
+
+    def cap_VP_Air(self):
+        M_H2O = constant.M_H2O
+        R = constant.R
+        T_Air = self.environment.T_Air
+        h_Air = self.parameter.h_Air
+        return (M_H2O * h_Air) / (R*(T_Air + 273.15))
 
     def cap_VP_Top(self):
         M_H2O = constant.M_H2O
         R = constant.R
         T_Air = self.environment.T_Air
         h_Top = self.h_Top()
-        return (M_H2O * h_Top) / (T_Air + 273.15)
+        return (M_H2O * h_Top) / (R*(T_Air + 273.15))
 
     def h_Top(self):
         h_Air = self.parameter.h_Air
