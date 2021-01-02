@@ -339,6 +339,8 @@ class GreenHouseModel:
 
     def r_s(self): #
         r_s_min = constant.r_s_min
+        return r_s_min
+
         rf_R = self.rf('R')
         rf_CO2 = self.rf('CO2')
         rf_VP = self.rf('VP')
@@ -511,7 +513,7 @@ class GreenHouseModel:
         self.state = state
         self.environment = environment
 
-        return ModelState(CO2_Air=self.d_CO2_Air(), CO2_Top=self.d_CO2_Top())
+        return ModelState(CO2_Air=self.d_CO2_Air(), CO2_Top=self.d_CO2_Top(), VP_Air=self.d_VP_Air(), VP_Top=self.d_VP_Top())
 
 ###USE WHEN TESTING METHODS###
 # if __name__ == "__main__": 
