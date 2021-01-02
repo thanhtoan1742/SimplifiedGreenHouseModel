@@ -260,32 +260,35 @@ class GreenHouseModel:
     def H_C_Buf(self): #
         return 1
 
-    def R(self): 
+    def R(self): #
         # R can be simplified to 0
         P = self.P()
         gamma = self.gamma()
         CO2_Storm = self.CO2_Storm()
         return P * gamma / CO2_Storm
 
-    def P(self):
+    def P(self): #
         gamma = self.gamma()
         CO2_Storm = self.CO2_Storm()
         J = self.J()
 
         return (J/4) * ((CO2_Storm - gamma)/(CO2_Storm - 2*gamma))
 
-    def gamma(self):
+    def gamma(self): #
         T_Can = self.environment.T_Can
         c_gamma = constant.c_gamma
 
         return T_Can * c_gamma
 
-
-    def CO2_Storm(self):
+    def CO2_Storm(self): #
         eta_CO2_Storm = constant.eta_CO2_Air_Stom
         CO2_Air = self.state.CO2_Air
 
         return eta_CO2_Storm * CO2_Air
+
+    # this is not actual value, this is just a placeholder.
+    def J(self):
+        return 1
 
 #############################################################
 
