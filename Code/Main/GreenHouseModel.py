@@ -257,99 +257,35 @@ class GreenHouseModel:
         R = self.R()
         return  M_CH2O * H_C_Buf * (P - R)
 
-    def R(self): #
-        # R got simplified to 0
-        return 0
-        C_gamma = constant.C_gamma
-        eta_CO2_Air_Stom = constant.eta_CO2_Air_Stom
-        T_Can = self.environment.T_Can
-        CO2_Air = self.state.CO2_Air
-        P = self.P()
-
-        gamma = C_gamma * T_Can
-        CO2_Stom = eta_CO2_Air_Stom * CO2_Air
-        return P * gamma / CO2_Stom
-
     def H_C_Buf(self): #
-        C_Buf = self.environment.C_Buf
-        C_Max_Buf = constant.C_Max_Buf
-
-        if C_Buf > C_Max_Buf: 
-            return 0
         return 1
 
+    def R(self): 
+        # R can be simplified to 0
+        P = self.P()
+        gamma = self.gamma()
+        CO2_Storm = self.CO2_Storm()
+        return P * gamma / CO2_Storm
+
     def P(self):
-        Res = constant.Res
+        gamma = self.gamma()
+        CO2_Storm = self.CO2_Storm()
+        J = self.J()
+
+        return (J/4) * ((CO2_Storm - gamma)/(CO2_Storm - 2*gamma))
+
+    def gamma(self):
+        T_Can = self.environment.T_Can
+        c_gamma = constant.c_gamma
+
+        return T_Can * c_gamma
+
+
+    def CO2_Storm(self):
+        eta_CO2_Storm = constant.eta_CO2_Air_Stom
         CO2_Air = self.state.CO2_Air
-        CO2_05 = self.CO2_05()
-        P_Max = self.P_Max()
 
-        return self.quadraticSolver(Res, CO2_Air + CO2_05 + Res*P_Max, CO2_Air*P_Max) 
-    
-    def quadraticSolver(self, a, b, c):
-        delta = b*b - 4*a*c
-        # TODO: clarify the solution of this equation.
-        if delta < 0:
-            pass
-        elif delta == 0:
-            return -b / (2*a)
-        else:
-            return ((-b + math.sqrt(delta)) / (2*a))
-
-    def CO2_05(self):
-        CO2_Air = self.state.CO2_Air
-        Res = constant.Res
-        P_Max = self.P_Max()
-
-        return CO2_Air - 0.5*Res*P_Max
-
-    def P_Max(self):
-        P_MLT = self.parameter.P_MLT
-        P_Max_Single = self.P_Max_Single()
-        L = self.L()
-        L_05 = self.L_05()
-
-        return (P_MLT + P_Max_Single*L) / (L + L_05)
-
-    def L(self):
-        L_0 = self.parameter.L_0
-        K = self.parameter.K
-        LAI = self.parameter.LAI
-        m = self.parameter.m
-        
-        return L_0*(1 - K*math.exp(-K*LAI)/(1 - m))
-
-    def L_05(self):
-        P_MLT = self.parameter.P_MLT
-        L = self.L()
-
-        return 2*P_MLT*L - L
-
-    def P_Max_Single(self):
-        k = self.k()
-        f = self.f()
-        return k * f
-
-    def k(self):
-        T_opt = self.parameter.T_opt
-        k_T_opt = self.parameter.k_T_opt
-        LAI = self.parameter.LAI
-        T_Air = self.environment.T_Air
-        H_a = constant.H_a
-
-        R= constant.R
-
-        return LAI * k_T_opt * math.exp(-H_a * (T_opt - T_Air) / (R* T_opt * T_Air))
-
-    # R_const in ModelConstant (discriminate with R() respiratory func in MCCanAir)
-    def f(self):
-        H_d = constant.H_d
-        S = self.parameter.S
-        T_opt = self.parameter.T_opt
-        T_Air = self.environment.T_Air
-        R= constant.R
-
-        return (1 + math.exp((-H_d ** 2 + T_opt * S) / (R* -H_d * T_opt))) / (1 + math.exp((-H_d ** 2 + T_Air * S) / (R* H_d * T_Air)))
+        return eta_CO2_Storm * CO2_Air
 
 #############################################################
 
@@ -507,6 +443,9 @@ class GreenHouseModel:
 
     def f_Pad(self): # not safe
         U_Pad = self.setPoint.U_Pad
+        if U_Pad == 0:
+            return 0
+
         phi_Pad = self.parameter.phi_Pad
         A_Flr = self.parameter.A_Flr
         return U_Pad*phi_Pad/A_Flr
