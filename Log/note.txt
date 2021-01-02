@@ -1,0 +1,33 @@
+1.
+Câu hỏi:
+Theo đề bài, CO2_air(t+h) là một hàm f tính theo CO2_air, rho_air, T_air,...
+Giả sử, em đang tính từ CO2_air từ t_0 tới t_0 + 300 với step h = 60. Trong dữ liệu chỉ có giá trị T_air tại thời điểm t_0, t_0 + 300, t_0 + 600,...
+Vậy lúc em cần tính CO2_air(t_0+60) thì dữ liệu không có giá trị T_air(t_0 + 60), giá trị này em có thể lấy bằng bao nhiêu ạ
+
+Trả lời: Khi cần tính CO2_air(t_0 + 60), CO2_air(t_0 + 120),... ta lấy luôn giá trị T_air tại thời điểm t_0
+VD: lấy T_air(0) để tính cho cả CO2_air(60), CO2_air(120)... CO2_air(240). 
+Tương tự dùng T_air(300) để tính cho cả CO2_air(360),..., CO2_air(540).
+
+2.
+Phần photosynthesis không hiện thực theo đề bài mà phải đọc trong Van11 để hiện thực
+
+3.
+Không xài công thức tính rho_air của Van11 mà dùng công thức trên wiki: https://en.wikipedia.org/wiki/Density_of_air
+
+4.
+Công thức [8.49] trong Van11 được đơn giản hóa thành: r_s = r_s,min 
+
+5.
+Những parameter đánh dấu x (không được sử dụng) trong ref Van11 thì lấy giá trị bằng 0
+
+6.
+Data về VP_air ban đầu nếu không có thì có thể tính bằng công thức saturation_vapour_pressure * ralative humidity
+
+7.
+Công thức tính h_Cbuf trong công thức (19) trong đề được đơn giản hóa. h_Cbuf luôn có giá trị là 1, tức là C_buf sẽ không ảnh hưởng đến sự thay đổi CO2
+
+8.
+Nếu không có dữ liệu của CO2_top, ta cho CO2_top = CO2_air tại thời điểm ban đầu
+
+9.
+Với giả thiết độ chênh lệch nhiệt độ không đổi, ta có thể giả sử delta_T = 1 độ C. Từ đó, các nhiệt độ khác (T_Top, T_Can, T_ThScr,...) sẽ tính bằng T_air + delta_T
