@@ -31,9 +31,6 @@ s_r_s = -1
 R_Can_SP = 5
 R_Can = 1362
 
-#P
-R_Const = 8.314 # 0.082 Depends on dataset
-
 #Duy_Thinh
 eta_HeatVap = 4.43 * 1e-8
 M_H2O = 18
@@ -42,6 +39,12 @@ S_MV12 = -0.1
 rho_Air_0 = 1.20
 M_Air = 28.96
 
-Res = 2.5
-H_a = 37000
-H_d = 220000
+alpha = 0.385
+theta = 0.7
+
+E_j = 37*1e3
+S = 710
+H = 22*1e4
+T_25K = 298.15
+J_MAX_25Leaf = 210
+PAR_Can = 100

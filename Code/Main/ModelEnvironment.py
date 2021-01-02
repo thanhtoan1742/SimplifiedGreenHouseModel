@@ -1,7 +1,7 @@
 class ModelEnvironment:
     def __init__(self, CO2_Out=0, VP_Out=0, T_opt=0, T_Air=0, T_Top=0, T_Out=0, T_Can=0,
                 T_ThScr = 0, T_Cov_in = 0, C_Buf=0, T_MechCool = 0, T_ThSrc = 0, x_Pad = 0, 
-                x_Out = 0, v_Wind = 0):
+                x_Out = 0, v_Wind = 0, LAI = 0):
         self.CO2_Out = CO2_Out
         self.VP_Out = VP_Out
         self.T_opt = T_opt
@@ -17,10 +17,11 @@ class ModelEnvironment:
         self.x_Pad = x_Pad
         self.x_Out = x_Out
         self.v_Wind = v_Wind
+        self.LAI = LAI
 
     def update(self, CO2_Out=None, VP_Out=None, T_opt=None, T_Air=None, T_Top=None, T_Out=None, 
                 T_Can = None, T_ThScr = None, T_Cov_in = None, T_MechCool = None, T_ThSrc = None, 
-                x_Pad = None, x_Out = None):
+                x_Pad = None, x_Out = None, v_Wind = None, LAI = None):
         if CO2_Out is not None:
             self.CO2_Out = CO2_Out
         if VP_Out is not None:
@@ -47,3 +48,7 @@ class ModelEnvironment:
             self.x_Pad = x_Pad
         if x_Out is not None:
             self.x_Out = x_Out
+        if v_Wind is not None:
+            self.v_Wind = v_Wind
+        if LAI is not None:
+            self.LAI = LAI

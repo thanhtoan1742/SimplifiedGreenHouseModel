@@ -286,9 +286,41 @@ class GreenHouseModel:
 
         return eta_CO2_Storm * CO2_Air
 
-    # this is not actual value, this is just a placeholder.
     def J(self):
-        return 1
+        alpha = constant.alpha
+        theta = constant.theta
+        J_POT = self.J_POT()
+        PAR_Can = constant.PAR_Can
+
+        temp1 = J_POT + alpha*PAR_Can
+        temp2 = (J_POT + alpha*PAR_Can)**2 - 4*theta*J_POT*alpha*PAR_Can
+        return (temp1 - temp2**0.5)/(2*theta)
+
+    def J_POT(self): #
+        E_j = constant.E_j
+        S = constant.S
+        H = constant.H
+        R = constant.R
+        T_25K = constant.T_25K
+        T_CanK = self.T_CanK()
+        J_MAX_25Can = self.J_MAX_25_Can()
+
+        temp1 = math.exp(E_j*(T_CanK - T_25K)/(R*T_CanK*T_25K))
+        temp2 = 1 + math.exp((S*T_25K - H)/(R*T_25K))
+        temp3 = 1 + math.exp((S*T_CanK - H)/(R*T_CanK))
+        return J_MAX_25Can*temp1*(temp2/temp3)
+
+    # equation 8.20 and 8.1 does not add up in term of units.
+    def T_CanK(self): #
+        T_Can = self.environment.T_Can
+        return T_Can
+
+    def J_MAX_25_Can(self): #
+        LAI = self.environment.LAI
+        J_MAX_25Leaf = constant.J_MAX_25Leaf
+        return LAI * J_MAX_25Leaf
+
+
 
 #############################################################
 
