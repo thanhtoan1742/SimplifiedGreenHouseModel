@@ -1,8 +1,8 @@
 import numpy as np
 
 class ModelEnvironment:
-    def __init__(self, CO2_Out=0, T_Out=0, RH_Out=0, v_Wind=0, LAI=0):
-        self.CO2_Out = CO2_Out # data
+    def __init__(self, CO2_Out=668, T_Out=0, RH_Out=0, v_Wind=0, LAI=0):
+        self.CO2_Out = CO2_Out # assumed to be 668
         self.T_Out = T_Out # data
         self.RH_Out = RH_Out # data
         self.v_Wind = v_Wind # data

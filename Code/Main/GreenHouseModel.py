@@ -12,6 +12,7 @@ class GreenHouseModel:
         self.setPoint = None
         self.state = None
         self.environment = None
+
     def d_CO2_Air(self): #
         cap_CO2_Air = self.cap_CO2_Air()
         return (self.MC_BlowAir() + self.MC_ExtAir() + self.MC_PadAir() - self.MC_AirCan() - self.MC_AirTop() - self.MC_AirOut()) / cap_CO2_Air
@@ -312,7 +313,7 @@ class GreenHouseModel:
     # equation 8.20 and 8.1 does not add up in term of units.
     def T_CanK(self): #
         T_Can = self.T_Can()
-        return T_Can
+        return T_Can + 273.15
 
     def J_MAX_25Can(self): #
         LAI = self.environment.LAI
@@ -502,7 +503,7 @@ class GreenHouseModel:
         VP_Out = self.VP_Out()
         T_Top = self.T_Top()
         T_Out = self.environment.T_Out
-        return M_Water / R * f_VentRoof(VP_Top / (T_Top + 273.15) - VP_Out / (T_Out + 273.15))
+        return M_Water/R * f_VentRoof*(VP_Top / (T_Top + 273.15) - VP_Out / (T_Out + 273.15))
 
     def MV_TopCov_in(self): #
         VP_Top = self.state.VP_Top
@@ -515,7 +516,6 @@ class GreenHouseModel:
     
     # Buck's formula
     def saturation_VP(self, temp): #
-        temp = temp - 273.15 # convert to Celcius
         pressure = 0.61121 * math.exp((18.678 - (temp/234.5)) * (temp/(257.14 + temp))) # this is in kPa
         return pressure*1000 # converto to Pa
 
