@@ -77,7 +77,7 @@ class GreenHouseModel:
         no_screen = (1-U_ThScr)*pow( g*(1-U_ThScr)*math.fabs(rho_Air-rho_Top)/(2*rho_Air_Mean), 1/2)
         return screen + no_screen
 
-    def rho_Air(self): # should be replace with 3. int Log/note.txt
+    def rho_Air(self): # should be replace with 3. in Log/note.txt
         rho_Air_0 = constant.rho_Air_0
         g = constant.g
         M_Air = constant.M_Air
@@ -87,7 +87,7 @@ class GreenHouseModel:
         return rho_Air_0 * math.exp(g * M_Air * h_Elevation / (293.15 * R))
 
 
-    def rho_Top(self): # should be replace with 3. int Log/note.txt
+    def rho_Top(self): # should be replace with 3. in Log/note.txt
         M_Air = constant.M_Air
         T_Top = self.T_Top()
         h_Elevation = self.parameter.h_Elevation
@@ -260,22 +260,24 @@ class GreenHouseModel:
     def R(self): #
         # R can be simplified to 0
         P = self.P()
-        gamma = self.gamma()
+        Gamma = self.Gamma()
         CO2_Storm = self.CO2_Storm()
-        return P * gamma / CO2_Storm
+        return P * Gamma / CO2_Storm
 
     def P(self): #
-        gamma = self.gamma()
+        Gamma = self.Gamma()
         CO2_Storm = self.CO2_Storm()
         J = self.J()
 
-        return (J/4) * ((CO2_Storm - gamma)/(CO2_Storm - 2*gamma))
+        return (J/4) * ((CO2_Storm - Gamma)/(CO2_Storm - 2*Gamma))
 
-    def gamma(self): #
+    def Gamma(self): #
         T_Can = self.T_Can()
-        c_gamma = constant.c_gamma
+        c_Gamma = constant.c_Gamma
+        J_MAX_25Leaf = constant.J_MAX_25Leaf
+        J_MAX_25Can = self.J_MAX_25Can()
 
-        return T_Can * c_gamma
+        return T_Can*c_Gamma*(J_MAX_25Leaf/J_MAX_25Can) + 20*c_Gamma*(1 - J_MAX_25Leaf/J_MAX_25Can)
 
     def CO2_Storm(self): #
         eta_CO2_Storm = constant.eta_CO2_Air_Stom
@@ -300,7 +302,7 @@ class GreenHouseModel:
         R = constant.R
         T_25K = constant.T_25K
         T_CanK = self.T_CanK()
-        J_MAX_25Can = self.J_MAX_25_Can()
+        J_MAX_25Can = self.J_MAX_25Can()
 
         temp1 = math.exp(E_j*(T_CanK - T_25K)/(R*T_CanK*T_25K))
         temp2 = 1 + math.exp((S*T_25K - H)/(R*T_25K))
@@ -312,7 +314,7 @@ class GreenHouseModel:
         T_Can = self.T_Can()
         return T_Can
 
-    def J_MAX_25_Can(self): #
+    def J_MAX_25Can(self): #
         LAI = self.environment.LAI
         J_MAX_25Leaf = constant.J_MAX_25Leaf
         return LAI * J_MAX_25Leaf
@@ -410,7 +412,7 @@ class GreenHouseModel:
     def x_Pad(self):
         return self.x_Air()
 
-    # Assume that the air inside the green house is saturated (which it doesn't)
+    # Assume that the air inside the green house is saturated (which it isn't)
     # parital pressure of air is equivalent to vapour pressure
     def x_Air(self):
         VP_Air = self.state.VP_Air
@@ -562,7 +564,7 @@ class GreenHouseModel:
         self.state = state
         self.environment = environment
 
-        return ModelState(CO2_Air=self.d_CO2_Air(), CO2_Top=self.d_CO2_Top(), VP_Air=self.d_VP_Air(), VP_Top=self.d_VP_Top())
+        return ModelState(self.d_CO2_Air(), self.d_CO2_Top(), self.d_VP_Air(), self.d_VP_Top())
 
 ###USE WHEN TESTING METHODS###
 # if __name__ == "__main__": 

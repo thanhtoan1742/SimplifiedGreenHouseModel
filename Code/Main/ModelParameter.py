@@ -28,7 +28,7 @@ class ModelParameter:
         # Thermal screen
         self.K_ThScr = K_ThScr # x | 0.05e-3 | 0.25e-3 | 1e-3
 
-        # Active clime control
+        # Active climate control
         self.eta_Pad = eta_Pad  # x | x | x | x
         self.phi_Fog = phi_Fog # x | x | x | 0
         self.phi_Pad = phi_Pad # x | x | x | 16.7

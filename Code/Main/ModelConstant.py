@@ -1,5 +1,4 @@
 # Equation from chapter 9 of vanthoor may use a different ideal gas constant compare to the one from chapter 8
-# conflict use of gamma
 
 
 # Latent heat of evaporation
@@ -18,7 +17,7 @@ eta_Roof_Thr = 0.9
 rho_Air_0 = 1.20
 
 # Psychrometric constant
-gamma = 65.8
+gamma = 65.8 # lower case gamma
 
 
 # Specific heat capacity of the air 
@@ -66,7 +65,7 @@ theta = 0.7
 eta_CO2_Air_Stom = 0.67
 
 # The effect of canopy temperature on the CO2 compensation point
-c_gamma = 1.7
+c_Gamma = 1.7 # upper case Gamma
 
 # Activation energy for J_POT calculation
 E_j = 37*1e3
