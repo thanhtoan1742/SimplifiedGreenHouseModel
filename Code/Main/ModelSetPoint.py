@@ -3,22 +3,13 @@ class ModelSetPoint:
                 U_Roof=1, U_Side=1, U_Fog=1, U_VentForced=1, U_MechCool = 1):
         self.U_Blow = U_Blow
         self.U_Pad = U_Pad
-
-        # MC_ExtAir
         self.U_ExtCO2 = U_ExtCO2
-
-        # Bach
         self.U_ThScr = U_ThScr
         self.U_ShScr = U_ShScr
         self.U_Roof = U_Roof
         self.U_Side = U_Side
-
         self.U_Fog = U_Fog
-
-        # Nguyen
         self.U_VentForced = U_VentForced
-
-        #DUY
         self.U_MechCool = U_MechCool
 
     def update(self, U_Blow=None, U_Pad=None, U_ExtCO2=None, U_ThScr=None, U_ShScr=None, 

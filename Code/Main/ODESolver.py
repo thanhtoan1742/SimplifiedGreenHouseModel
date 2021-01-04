@@ -11,19 +11,19 @@ class ODESolver:
         self.setpoint = None
         self.environment = None
 
-    def rk4_wrapper(self, state: ModelState, envir: ModelEnvironment, setpoint: ModelSetPoint, t0, t1):
+    def rk4_wrapper_for_GreenHouseModel(self, state: ModelState, envir: ModelEnvironment, setPoint: ModelSetPoint, t0, t1):
         u_t = state.to_numpy_array()
         self.environment = envir
-        self.setpoint = setpoint
+        self.setpoint = setPoint
         u_t1 = self.rk4_solver(u_t, t0, t1 - t0, self.du)
         next_state = ModelState()
         next_state.from_numpy_array(u_t1)
         return next_state
 
-    def euler_wrapper(self, state: ModelState, envir: ModelEnvironment, setPoint: ModelSetPoint, t0, t1):
+    def euler_wrapper_for_GreenHouseModel(self, state: ModelState, envir: ModelEnvironment, setPoint: ModelSetPoint, t0, t1):
         u_t = state.to_numpy_array()
         self.environment = envir
-        self.setpoint = setpoint
+        self.setpoint = setPoint
         u_t1 = self.euler_solver(u_t, t0, t1 - t0, self.du)
         next_state = ModelState()
         next_state.from_numpy_array(u_t1)
@@ -64,43 +64,3 @@ class ODESolver:
 
     def euler_solver(self, u_t, t, h, du):
         return u_t + h * du(u_t, t)
-
-
-def myDx(x, t):
-#for checking correctness of rk4 and euler method using customized fx and dx
-    m = len(x)
-    func = np.array([0 for i in range(m)], dtype=float)
-    func[0] = x[0] - 2 * x[1] - 2 * np.exp(-t) + 2
-    func[1] = 2 * x[0] - x[1] - 2 * np.exp(-t) + 1
-    return func
-
-def myFx(x, t):
-    func = np.array([0 for i in range(len(x))], dtype = float)
-    func[0] = np.exp(-t) * np.sin(t)
-    func[1] = np.exp(-t) * np.cos(t)
-    return func
-
-if __name__ == '__main__':
-    np.set_printoptions(suppress=True)
-    state = ModelState(0,0,0,0)
-    par = ModelParameter(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0)
-    gh = GreenHouseModel(par)
-    setpoint = ModelSetPoint()
-    environment = ModelEnvironment()
-    sv = ODESolver(gh)
-
-    initial_val = np.array([1, 1], dtype=float)
-    t = 0
-    t_end = 0.5
-    step = 0.1
-    rk4 = [initial_val]
-    euler = [initial_val]
-    true_solution = [initial_val]
-    while t < t_end:
-        rk4.append(sv.rk4_solver(rk4[-1], t, step, myDx))
-        euler.append(sv.euler_solver(euler[-1], t, step, myDx))
-        true_solution.append(myFx(true_solution[-1], t))
-        t += step
-
-
-

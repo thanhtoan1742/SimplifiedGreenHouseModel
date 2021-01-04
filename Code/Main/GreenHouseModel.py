@@ -1,5 +1,3 @@
-# f_VentRoofSide is extremely unsafe
-# C_w and C_d is unsafe at the fourth green house
 import math
 
 import ModelConstant as constant 
@@ -14,7 +12,6 @@ class GreenHouseModel:
         self.setPoint = None
         self.state = None
         self.environment = None
-
     def d_CO2_Air(self): #
         cap_CO2_Air = self.cap_CO2_Air()
         return (self.MC_BlowAir() + self.MC_ExtAir() + self.MC_PadAir() - self.MC_AirCan() - self.MC_AirTop() - self.MC_AirOut()) / cap_CO2_Air
@@ -67,8 +64,8 @@ class GreenHouseModel:
         rho_Air = self.rho_Air()
         rho_Top = self.rho_Top()
         K_ThScr = self.parameter.K_ThScr
-        T_Air = self.environment.T_Air
-        T_Top = self.environment.T_Top
+        T_Air = self.T_Air()
+        T_Top = self.T_Top()
         g = constant.g
 
         rho_Air_Mean = (rho_Air + rho_Top)/2
@@ -80,7 +77,7 @@ class GreenHouseModel:
         no_screen = (1-U_ThScr)*pow( g*(1-U_ThScr)*math.fabs(rho_Air-rho_Top)/(2*rho_Air_Mean), 1/2)
         return screen + no_screen
 
-    def rho_Air(self): #
+    def rho_Air(self): # should be replace with 3. int Log/note.txt
         rho_Air_0 = constant.rho_Air_0
         g = constant.g
         M_Air = constant.M_Air
@@ -90,9 +87,9 @@ class GreenHouseModel:
         return rho_Air_0 * math.exp(g * M_Air * h_Elevation / (293.15 * R))
 
 
-    def rho_Top(self): #
+    def rho_Top(self): # should be replace with 3. int Log/note.txt
         M_Air = constant.M_Air
-        T_Top = self.environment.T_Top
+        T_Top = self.T_Top()
         h_Elevation = self.parameter.h_Elevation
         R = constant.R
 
@@ -141,7 +138,7 @@ class GreenHouseModel:
     def dd_f_VentRoofSide(self): # not safe, need safety
         U_Roof = self.setPoint.U_Roof
         U_Side = self.setPoint.U_Side
-        T_Air = self.environment.T_Air
+        T_Air = self.T_Air()
         T_Out = self.environment.T_Out
         v_Wind = self.environment.v_Wind
         h_SideRoof = self.parameter.h_SideRoof
@@ -164,7 +161,7 @@ class GreenHouseModel:
         if U_Roof == 0:
             return 0
 
-        T_Air = self.environment.T_Air
+        T_Air = self.T_Air()
         T_Out = self.environment.T_Out
         T_Mean_Air = (T_Air + T_Out)/2
         v_Wind = self.environment.v_Wind
@@ -275,7 +272,7 @@ class GreenHouseModel:
         return (J/4) * ((CO2_Storm - gamma)/(CO2_Storm - 2*gamma))
 
     def gamma(self): #
-        T_Can = self.environment.T_Can
+        T_Can = self.T_Can()
         c_gamma = constant.c_gamma
 
         return T_Can * c_gamma
@@ -312,7 +309,7 @@ class GreenHouseModel:
 
     # equation 8.20 and 8.1 does not add up in term of units.
     def T_CanK(self): #
-        T_Can = self.environment.T_Can
+        T_Can = self.T_Can()
         return T_Can
 
     def J_MAX_25_Can(self): #
@@ -336,17 +333,21 @@ class GreenHouseModel:
     def cap_VP_Air(self): #
         M_H2O = constant.M_H2O
         R = constant.R
-        T_Air = self.environment.T_Air
+        T_Air = self.T_Air()
         h_Air = self.parameter.h_Air
         return (M_H2O * h_Air) / (R*(T_Air + 273.15))
 
     def cap_VP_Top(self): # similar to cap_VP_Air , line 424 Koidra/climate/state_variable
         # M_H2O = constant.M_H2O
         # R = constant.R
-        # T_Top = self.environment.T_Top
+        # T_Top = self.T_Top()
         # h_Top = self.h_Top()
         # return (M_H2O * h_Top) / (R*(T_Top + 273.15))
         return self.cap_VP_Air()
+
+    def VP_Out(self):
+        T_Out = self.environment.T_Out
+        return self.saturation_VP(T_Out)
 
     def h_Top(self): #
         h_Air = self.parameter.h_Air
@@ -354,64 +355,26 @@ class GreenHouseModel:
         return h_Gh - h_Air
 
     def MV_CanAir(self): #
-        VEC_CanAir = self.VEC_CanAir()
-        VP_Can = self.saturation_VP(self.environment.T_Can)
+        T_Can = self.T_Can()
         VP_Air = self.state.VP_Air
+        VEC_CanAir = self.VEC_CanAir()
+        VP_Can = self.saturation_VP(T_Can)
         return VEC_CanAir * (VP_Can - VP_Air)
 
     def VEC_CanAir(self): #
         rho_Air = self.rho_Air()
         c_p_Air = constant.c_p_Air
-        LAI = self.parameter.LAI
+        LAI = self.environment.LAI
         delta_H = constant.delta_H
         gamma = constant.gamma
         r_b = constant.r_b
         r_s = self.r_s()
+
         return 2*rho_Air*c_p_Air*LAI / (delta_H*gamma* (r_b + r_s))
 
     def r_s(self): #
         r_s_min = constant.r_s_min
         return r_s_min
-
-        rf_R = self.rf('R')
-        rf_CO2 = self.rf('CO2')
-        rf_VP = self.rf('VP')
-        return r_s_min*rf_R*rf_CO2*rf_VP
-    
-    def rf(self, mode): #
-        if mode == 'R': #
-            R_Can = constant.R_Can
-            c_evap1 = constant.c_evap1
-            c_evap2 = constant.c_evap2
-            return (R_Can + c_evap1)/(R_Can + c_evap2)
-        elif mode == 'CO2': #
-            c_evap3 = self.c_evap3()
-            eta_mg_ppm = constant.eta_mg_ppm
-            CO2_Air = self.state.CO2_Air
-            return 1 + c_evap3*( (eta_mg_ppm*CO2_Air-200)**2 )
-        else:   #
-            VP_Can = self.saturation_VP(self.environment.T_Can)
-            VP_Air = self.state.VP_Air
-            c_evap4 = self.c_evap4()
-            return 1 + c_evap4*( (VP_Can - VP_Air)**2 )
-
-    def c_evap3(self): #
-        c_day_evap3 = constant.c_day_evap3
-        c_night_evap3 = constant.c_night_evap3
-        S_r_s = self.S_r_s()
-        return c_day_evap3*(1-S_r_s) + c_night_evap3*S_r_s
-
-    def c_evap4(self):#
-        c_day_evap4 = constant.c_day_evap4
-        c_night_evap4 = constant.c_night_evap4
-        S_r_s = self.S_r_s()
-        return c_day_evap4*(1-S_r_s) + c_night_evap4*S_r_s
-
-    def S_r_s(self): #
-        s_r_s = constant.s_r_s
-        R_Can_SP = constant.R_Can_SP
-        R_Can = constant.R_Can
-        return 1/ ( 1 + math.exp(s_r_s* (R_Can - R_Can_SP) ) ) 
 
     def MV_FogAir(self): # not safe
         U_Fog = self.setPoint.U_Fog
@@ -422,7 +385,7 @@ class GreenHouseModel:
     def MV_AirThScr(self): #
         s_MV12 = constant.S_MV12
         VP_Air = self.state.VP_Air
-        VP_ThScr = self.saturation_VP(self.environment.T_ThScr)
+        VP_ThScr = self.saturation_VP(self.T_ThScr())
         HEC_AirThScr = self.HEC_AirThScr()
         tmp1 = 1/( 1 + math.exp( s_MV12*(VP_Air - VP_ThScr) ) ) 
         tmp2 = 6.4*1e-9*HEC_AirThScr*(VP_Air-VP_ThScr)
@@ -430,17 +393,36 @@ class GreenHouseModel:
 
     def HEC_AirThScr(self): #
         U_ThScr = self.setPoint.U_ThScr
-        T_Air = self.environment.T_Air 
-        T_ThScr = self.environment.T_ThScr
+        T_Air = self.T_Air()
+        T_ThScr = self.T_ThScr()
         return 1.7*U_ThScr*( math.fabs(T_Air - T_ThScr)**0.33 )
 
     def MV_PadAir(self): # not safe
         rho_Air = self.rho_Air()
         f_Pad = self.f_Pad()
         eta_Pad = self.parameter.eta_Pad
-        x_Pad = self.environment.x_Pad
-        x_Out = self.environment.x_Out
+        x_Pad = self.x_Pad()
+        x_Out = self.x_Out()
         return rho_Air * f_Pad * (eta_Pad * (x_Pad - x_Out) + x_Out)
+
+    # fan-pad pull air from outside (Out) to inside (Air)
+    # So, x_Pad can be calculated as x_Air
+    def x_Pad(self):
+        return self.x_Air()
+
+    # Assume that the air inside the green house is saturated (which it doesn't)
+    # parital pressure of air is equivalent to vapour pressure
+    def x_Air(self):
+        VP_Air = self.state.VP_Air
+        return self.specific_humidity(VP_Air)
+
+    def x_Out(self):
+        T_Out = self.environment.T_Out
+        RH_Out = self.environment.RH_Out
+        VP_Out = self.saturation_VP(T_Out)
+        
+        partial_pressure = RH_Out * VP_Out
+        return self.specific_humidity(partial_pressure)
 
     def MV_BlowAir(self): # not safe
         eta_HeatVap = constant.eta_HeatVap
@@ -456,8 +438,8 @@ class GreenHouseModel:
         R = constant.R
         VP_Air = self.state.VP_Air
         VP_Top = self.state.VP_Top
-        T_Air = self.environment.T_Air
-        T_Top = self.environment.T_Top
+        T_Air = self.T_Air()
+        T_Top = self.T_Top()
         return M_H2O * f_ThScr / R * (VP_Air / (T_Air + 273.15) - VP_Top / (T_Top + 273.15))
 
     def MV_AirOut(self): # f_VentSide not safe
@@ -465,8 +447,8 @@ class GreenHouseModel:
         M_H2O = constant.M_H2O
         R = constant.R
         VP_Air = self.state.VP_Air
-        VP_Out = self.environment.VP_Out
-        T_Air = self.environment.T_Air
+        VP_Out = self.VP_Out()
+        T_Air = self.T_Air()
         T_Out = self.environment.T_Out
         return M_H2O * f_AirOut / R * (VP_Air / (T_Air + 273.15) - VP_Out / (T_Out + 273.15))
 
@@ -475,7 +457,7 @@ class GreenHouseModel:
         M_H2O = constant.M_H2O
         R = constant.R
         VP_Air = self.state.VP_Air
-        T_Air = self.environment.T_Air
+        T_Air = self.T_Air()
         return f_Pad * M_H2O / R * (VP_Air / (T_Air + 273.15))
 
     def f_Pad(self): # not safe
@@ -489,7 +471,7 @@ class GreenHouseModel:
 
     def MV_AirMech(self): #
         VP_Air = self.state.VP_Air
-        VP_MechCool = self.saturation_VP(self.environment.T_MechCool)
+        VP_MechCool = self.saturation_VP(self.T_MechCool())
         HEC_MechAir = self.HEC_MechAir()
         S_MV12 = constant.S_MV12
         res = 1 / (1 + math.exp(S_MV12 * (VP_Air - VP_MechCool))) * 6.4 * 1e-9
@@ -501,8 +483,8 @@ class GreenHouseModel:
         COP_MechCool = self.parameter.COP_MechCool
         P_MechCool = self.parameter.P_MechCool
         A_Flr = self.parameter.A_Flr
-        T_Air = self.environment.T_Air
-        T_MechCool = self.environment.T_MechCool
+        T_Air = self.T_Air()
+        T_MechCool = self.T_MechCool()
         VP_Air = self.state.VP_Air
         VP_MechCool = self.saturation_VP(T_MechCool)
         delta_H = constant.delta_H
@@ -515,30 +497,65 @@ class GreenHouseModel:
         R = constant.R
         f_VentRoof = self.f_VentRoof()
         VP_Top = self.state.VP_Top
-        VP_Out = self.environment.VP_Out
-        T_Top = self.environment.T_Top
+        VP_Out = self.VP_Out()
+        T_Top = self.T_Top()
         T_Out = self.environment.T_Out
         return M_H2O / R * f_VentRoof(VP_Top / (T_Top + 273.15) - VP_Out / (T_Out + 273.15))
 
     def MV_TopCov_in(self): #
         VP_Top = self.state.VP_Top
-        VP_Cov_in = self.saturation_VP(self.environment.T_Cov_in)
+        VP_Cov_in = self.saturation_VP(self.T_Cov_in())
         HEC_TopCov_in = self.HEC_TopCov_in()
         S_MV12 = constant.S_MV12
         res = 1 / (1 + math.exp(S_MV12 * (VP_Top - VP_Cov_in))) * 6.4 * 1e-9
         res = res * HEC_TopCov_in * (VP_Top - VP_Cov_in)
         return res
     
+    # Buck's formula
     def saturation_VP(self, temp): #
-        return 610.78 * math.exp(temp / (temp + 238.3) * 17.2694)
+        temp = temp - 273.15 # convert to Celcius
+        pressure = 0.61121 * math.exp((18.678 - (temp/234.5)) * (temp/(257.14 + temp))) # this is in kPa
+        return pressure*1000 # converto to Pa
+
+    # Vaisala eq:14
+    def specific_humidity(self, partial_pressure):
+        M_H20 = constant.M_H20
+        M_Air = constant.M_Air
+        P_Ambient = constant.P_Ambient
+
+        return (M_H20/M_Air)*(partial_pressure/(P_Ambient - partial_pressure))
     
     def HEC_TopCov_in(self): #
         c_HECin = self.parameter.c_HECin
-        T_Top = self.environment.T_Top
-        T_Cov_in = self.environment.T_Cov_in
+        T_Top = self.T_Top()
+        T_Cov_in = self.T_Cov_in()
         A_Cov = self.parameter.A_Cov
         A_Flr = self.parameter.A_Flr
         return c_HECin * ((T_Top - T_Cov_in) ** 0.33) * A_Cov / A_Flr
+
+    def T_Air(self):
+        T_Out = self.environment.T_Out
+        return T_Out + 1
+
+    def T_Top(self):
+        T_Out = self.environment.T_Out
+        return T_Out + 1
+
+    def T_Can(self):
+        T_Out = self.environment.T_Out
+        return T_Out + 1
+
+    def T_ThScr(self):
+        T_Out = self.environment.T_Out
+        return T_Out + 1
+
+    def T_Cov_in(self):
+        T_Out = self.environment.T_Out
+        return T_Out + 1
+
+    def T_MechCool(self):
+        T_Out = self.environment.T_Out
+        return T_Out + 1
 
     def __call__(self, setPoint: ModelSetPoint, state: ModelState, environment: ModelEnvironment):
         self.setPoint = setPoint
