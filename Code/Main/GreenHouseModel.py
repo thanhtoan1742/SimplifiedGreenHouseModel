@@ -81,7 +81,7 @@ class GreenHouseModel:
         rho_Air_0 = constant.rho_Air_0
         g = constant.g
         M_Air = constant.M_Air
-        R = constant.R
+        R = constant.R*1000
         h_Elevation = self.parameter.h_Elevation
 
         return rho_Air_0 * math.exp(g * M_Air * h_Elevation / (293.15 * R))
@@ -91,7 +91,7 @@ class GreenHouseModel:
         M_Air = constant.M_Air
         T_Top = self.T_Top()
         h_Elevation = self.parameter.h_Elevation
-        R = constant.R
+        R = constant.R*1000
 
         pressure = 101325 * (1 - 2.5577e-5 * h_Elevation) ** 5.25588
         return M_Air * pressure / ((T_Top + 273.15) * R)
@@ -333,18 +333,18 @@ class GreenHouseModel:
         return (self.MV_AirTop() - self.MV_TopCov_in() -  self.MV_TopOut()) / cap_VP_Top
 
     def cap_VP_Air(self): #
-        M_H2O = constant.M_H2O
-        R = constant.R
+        M_Water = constant.M_Water
+        R = constant.R*1000
         T_Air = self.T_Air()
         h_Air = self.parameter.h_Air
-        return (M_H2O * h_Air) / (R*(T_Air + 273.15))
+        return (M_Water * h_Air) / (R*(T_Air + 273.15))
 
     def cap_VP_Top(self): # similar to cap_VP_Air , line 424 Koidra/climate/state_variable
-        # M_H2O = constant.M_H2O
-        # R = constant.R
+        # M_Water = constant.M_Water
+        # R = constant.R*1000
         # T_Top = self.T_Top()
         # h_Top = self.h_Top()
-        # return (M_H2O * h_Top) / (R*(T_Top + 273.15))
+        # return (M_Water * h_Top) / (R*(T_Top + 273.15))
         return self.cap_VP_Air()
 
     def VP_Out(self):
@@ -436,31 +436,31 @@ class GreenHouseModel:
 
     def MV_AirTop(self): #
         f_ThScr = self.f_ThScr()
-        M_H2O = constant.M_H2O
-        R = constant.R
+        M_Water = constant.M_Water
+        R = constant.R*1000
         VP_Air = self.state.VP_Air
         VP_Top = self.state.VP_Top
         T_Air = self.T_Air()
         T_Top = self.T_Top()
-        return M_H2O * f_ThScr / R * (VP_Air / (T_Air + 273.15) - VP_Top / (T_Top + 273.15))
+        return M_Water * f_ThScr / R * (VP_Air / (T_Air + 273.15) - VP_Top / (T_Top + 273.15))
 
     def MV_AirOut(self): # f_VentSide not safe
         f_AirOut = self.f_VentSide() + self.f_VentForced()
-        M_H2O = constant.M_H2O
-        R = constant.R
+        M_Water = constant.M_Water
+        R = constant.R*1000
         VP_Air = self.state.VP_Air
         VP_Out = self.VP_Out()
         T_Air = self.T_Air()
         T_Out = self.environment.T_Out
-        return M_H2O * f_AirOut / R * (VP_Air / (T_Air + 273.15) - VP_Out / (T_Out + 273.15))
+        return M_Water * f_AirOut / R * (VP_Air / (T_Air + 273.15) - VP_Out / (T_Out + 273.15))
 
     def MV_AirOut_Pad(self): # f_Pad not safe
         f_Pad = self.f_Pad()
-        M_H2O = constant.M_H2O
-        R = constant.R
+        M_Water = constant.M_Water
+        R = constant.R*1000
         VP_Air = self.state.VP_Air
         T_Air = self.T_Air()
-        return f_Pad * M_H2O / R * (VP_Air / (T_Air + 273.15))
+        return f_Pad * M_Water / R * (VP_Air / (T_Air + 273.15))
 
     def f_Pad(self): # not safe
         U_Pad = self.setPoint.U_Pad
@@ -495,14 +495,14 @@ class GreenHouseModel:
         return res
 
     def MV_TopOut(self): #
-        M_H2O = constant.M_H2O
-        R = constant.R
+        M_Water = constant.M_Water
+        R = constant.R*1000
         f_VentRoof = self.f_VentRoof()
         VP_Top = self.state.VP_Top
         VP_Out = self.VP_Out()
         T_Top = self.T_Top()
         T_Out = self.environment.T_Out
-        return M_H2O / R * f_VentRoof(VP_Top / (T_Top + 273.15) - VP_Out / (T_Out + 273.15))
+        return M_Water / R * f_VentRoof(VP_Top / (T_Top + 273.15) - VP_Out / (T_Out + 273.15))
 
     def MV_TopCov_in(self): #
         VP_Top = self.state.VP_Top
@@ -521,11 +521,11 @@ class GreenHouseModel:
 
     # Vaisala eq:14
     def specific_humidity(self, partial_pressure):
-        M_H20 = constant.M_H20
+        M_Water = constant.M_Water
         M_Air = constant.M_Air
         P_Ambient = constant.P_Ambient
 
-        return (M_H20/M_Air)*(partial_pressure/(P_Ambient - partial_pressure))
+        return (M_Water/M_Air)*(partial_pressure/(P_Ambient - partial_pressure))
     
     def HEC_TopCov_in(self): #
         c_HECin = self.parameter.c_HECin

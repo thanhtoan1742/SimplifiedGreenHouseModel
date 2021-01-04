@@ -33,10 +33,8 @@ M_Air = 28.96
 M_Water = 18
 
 # Ideal gas constant
-R = 8.314*1e3
-
-# The radiation value above the canopy when the night becomes day and vice versa.
-R_Can_SP = 5
+# in chapter 8 of Vanthoor, this constant has to be use as R*1000
+R = 8.314
 
 # Boundary layer resistance of the canopy for vapour transport 
 r_b = 275
@@ -77,7 +75,7 @@ H = 22*1e4
 J_MAX_25Leaf = 210
 
 # Molar mass of CH2O
-M_CH20 = 30e-3
+M_CH2O = 30e-3
 
 # Entropy term for J_POT calculation
 S = 710
@@ -85,9 +83,6 @@ S = 710
 # Reference temperature for J_POT calculation
 T_25K = 298.15
 
-
-
-
-R_Can = 1362
+# PAR reflected by the greenhouse floor that is indirectly absorbed
+# assummed in 4th section of the problem (Hieu)
 PAR_Can = 100
-
