@@ -16,12 +16,21 @@ from ODESolver import *
 DATA_PATH = 'meteo.csv'
 REFERENCE_DATA_PATH = 'Greenhouse_climate.csv'
 
-
 # %%
 data = pd.read_csv(DATA_PATH)
 data = data[2:-1]
 data = data[['Tout', 'Rhout', 'Windsp']]
 data.reset_index(inplace=True)
+
+for i in range(len(data)):
+    if np.isnan(data['Tout'][i]):
+        data['Tout'][i] = data['Tout'][i - 1]
+
+    if np.isnan(data['Rhout'][i]):
+        data['Rhout'][i] = data['Rhout'][i - 1]
+        
+    if np.isnan(data['Tout'][i]):
+        data['Windsp'][i] = data['Windsp'][i - 1]
 # data
 
 
@@ -29,6 +38,7 @@ data.reset_index(inplace=True)
 ref_data = pd.read_csv(REFERENCE_DATA_PATH)
 ref_data = ref_data[2:-1]
 ref_data = ref_data[['Tair', 'RHair', 'CO2air']]
+
 ref_data.reset_index(inplace=True)
 # ref_data
 
@@ -52,9 +62,10 @@ def run_Sicily_model():
     )
 
     solver = ODESolver(gh)
-    result = [state.to_numpy_array()]
+    result = np.ndarray((len(data), 4))
+    result[0] = state.to_numpy_array()
 
-    for i in range(0, len(data) - 1):
+    for i in tqdm(range(0, len(data) - 1)):
         environment = ModelEnvironment(
             T_Out=data['Tout'][i],
             RH_Out=data['Rhout'][i],
@@ -62,32 +73,46 @@ def run_Sicily_model():
             LAI=1.5
         )
 
-
         for j in range(60):
             d_state = gh(setpoint, state, environment)
             new_state = d_state.to_numpy_array() * 5 + state.to_numpy_array()
             new_state = ModelState().from_numpy_array(new_state)
             state = new_state
 
-        # d_state = gh(setpoint, state, environment)
-        # new_state = d_state.to_numpy_array() * 300 + state.to_numpy_array()
-        # new_state = ModelState().from_numpy_array(new_state)
-        # state = new_state
+        result[i+1] = state.to_numpy_array()
 
-        print(d_state.to_numpy_array())
-        print(new_state.to_numpy_array())
-        print()
+        if state.CO2_Air < 0 or state.CO2_Top < 0 or state.VP_Air < 0 or state.VP_Top < 0:
+            print(f"error at {i}:")
+            print(state.to_numpy_array())
+            break
+
+        if np.isnan(state.CO2_Air) or np.isnan(state.CO2_Top) or np.isnan(state.VP_Air) or np.isnan(state.VP_Top):
+            print(f"nan at {i}:")
+            print(state.to_numpy_array())
+            break
         # new_state = solver.euler_wrapper_for_GreenHouseModel(state, environment, setpoint, 0, 300)
         # result.append(new_state.to_numpy_array())
         # state = new_state
 
     return result
-    
 
 
+# %%
 result = run_Sicily_model()
-print(result)
+res_data = pd.DataFrame(
+    result,
+    columns=['CO2air', 'CO2top', 'VPair', 'VPtop']
+)
 
 # %%
-len(ref_data)
+res_data.to_csv('sicily.csv', index=False)
 # %%
+RRMSE_CO2_Air = sum([(1/len(data))*(ref_data['CO2air'][i] - res_data['CO2air'][i])**2 for i in range(len(data))])**(1/2)
+RRMSE_CO2_Air
+# %%
+res_data
+
+# %%
+result
+# %%
+valid_index = [not np.isnan(ref_data[''])]

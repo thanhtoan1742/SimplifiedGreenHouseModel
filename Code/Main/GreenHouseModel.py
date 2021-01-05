@@ -15,7 +15,7 @@ class GreenHouseModel:
 
     def d_CO2_Air(self): #
         cap_CO2_Air = self.cap_CO2_Air()
-        print(f'MC_AirCan:{self.MC_AirCan()}, MC_AirTop:{self.MC_AirTop()}, MC_AirOut:{self.MC_AirOut()}, ')
+        # print(f'MC_AirCan:{self.MC_AirCan()}, MC_AirTop:{self.MC_AirTop()}, MC_AirOut:{self.MC_AirOut()}, ')
         return (self.MC_BlowAir() + self.MC_ExtAir() + self.MC_PadAir() - self.MC_AirCan() - self.MC_AirTop() - self.MC_AirOut()) / cap_CO2_Air
 
     def d_CO2_Top(self): #
@@ -258,11 +258,6 @@ class GreenHouseModel:
         H_C_Buf = self.H_C_Buf()
         P = self.P()
         R = self.R()
-        if np.abs(M_CH2O * H_C_Buf * (P - R)) > 10:
-            print("What the fuck is this")
-            print(M_CH2O)
-            print(H_C_Buf)
-            print(P-R)
         return  M_CH2O * H_C_Buf * (P - R)
 
     def H_C_Buf(self): #
