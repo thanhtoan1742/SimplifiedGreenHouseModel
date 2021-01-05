@@ -519,6 +519,8 @@ class GreenHouseModel:
         pressure = 0.61121 * math.exp((18.678 - (temp/234.5)) * (temp/(257.14 + temp))) # this is in kPa
         return pressure*1000 # converto to Pa
 
+    # def saturation_VP(self, t):
+    #     return 610.78 * math.exp(17.27 * t / (t +237.3))
     # Vaisala eq:14
     def specific_humidity(self, partial_pressure):
         M_Water = constant.M_Water
