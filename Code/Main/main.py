@@ -22,7 +22,7 @@ data = pd.read_csv(DATA_PATH)
 data = data[2:-1]
 data = data[['Tout', 'Rhout', 'Windsp']]
 data.reset_index(inplace=True)
-data
+# data
 
 
 # %%
@@ -30,7 +30,7 @@ ref_data = pd.read_csv(REFERENCE_DATA_PATH)
 ref_data = ref_data[2:-1]
 ref_data = ref_data[['Tair', 'RHair', 'CO2air']]
 ref_data.reset_index(inplace=True)
-ref_data
+# ref_data
 
 # %%
 def run_Sicily_model():
