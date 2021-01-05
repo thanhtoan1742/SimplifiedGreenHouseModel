@@ -14,13 +14,5 @@ class ModelState:
         self.CO2_Air = arr[0]
         self.CO2_Top = arr[1]
         self.VP_Air = arr[2]
-        self.VP_Top = arr[2]
-
-    def __add__(self, other):
-        return ModelState().from_numpy_array(self.to_numpy_array() + other.to_numpy_array())
-
-    def __mul__(self, other):
-        return ModelState().from_numpy_array(self.to_numpy_array()*other)
-
-    def __str__(self):
-        return 'ass'
+        self.VP_Top = arr[3]
+        return self

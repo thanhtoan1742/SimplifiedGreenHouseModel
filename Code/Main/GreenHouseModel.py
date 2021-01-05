@@ -15,10 +15,12 @@ class GreenHouseModel:
 
     def d_CO2_Air(self): #
         cap_CO2_Air = self.cap_CO2_Air()
+        # print(f'MC_BlowAir:{self.MC_BlowAir()}, MC_ExtAir: {self.MC_ExtAir()}, MC_PadAir:{self.MC_PadAir()}, MC_AirCan:{self.MC_AirCan()}, MC_AirTop:{self.MC_AirTop()}, MC_AirOut:{self.MC_AirOut()}, ')
         return (self.MC_BlowAir() + self.MC_ExtAir() + self.MC_PadAir() - self.MC_AirCan() - self.MC_AirTop() - self.MC_AirOut()) / cap_CO2_Air
 
     def d_CO2_Top(self): #
         cap_CO2_Top = self.cap_CO2_Top()
+        # print(f'MC_AirTop:{self.MC_AirTop()}, MC_TopOut: {self.MC_TopOut()}')
         return (self.MC_AirTop() - self.MC_TopOut()) / cap_CO2_Top
 
     def cap_CO2_Air(self): #
@@ -101,6 +103,7 @@ class GreenHouseModel:
         CO2_Air = self.state.CO2_Air
         CO2_Top = self.state.CO2_Top
         f_ThScr = self.f_ThScr()
+        # print(f'f_ThsScr:{f_ThScr}')
         return f_ThScr*(CO2_Air - CO2_Top)
 
     def C_d(self): # not safe
@@ -236,9 +239,11 @@ class GreenHouseModel:
 
     def MC_TopOut(self): #
         f_VentRoof = self.f_VentRoof()
-        CO2_Air = self.state.CO2_Air
         CO2_Top = self.state.CO2_Top
-        return f_VentRoof*(CO2_Air - CO2_Top)
+        CO2_Out = self.environment.CO2_Out
+
+        # print(            f'f_VentRoof:{f_VentRoof}')
+        return f_VentRoof*(CO2_Top - CO2_Out)
 
     def MC_AirOut(self): #
         f_VentSide = self.f_VentSide()
@@ -413,7 +418,7 @@ class GreenHouseModel:
     def x_Pad(self):
         return self.x_Air()
 
-    # Assume that the air inside the green house is saturated (which it isn't)
+    # Assume that the air inside the green house is saturated
     # parital pressure of air is equivalent to vapour pressure
     def x_Air(self):
         VP_Air = self.state.VP_Air
@@ -510,8 +515,17 @@ class GreenHouseModel:
         VP_Cov_in = self.saturation_VP(self.T_Cov_in())
         HEC_TopCov_in = self.HEC_TopCov_in()
         S_MV12 = constant.S_MV12
+
+        # print()
+        # print(self.T_Cov_in())
+        # print(VP_Top)
+        # print(VP_Cov_in)
+        # print(HEC_TopCov_in)
+        # print(S_MV12)
         res = 1 / (1 + math.exp(S_MV12 * (VP_Top - VP_Cov_in))) * 6.4 * 1e-9
         res = res * HEC_TopCov_in * (VP_Top - VP_Cov_in)
+
+
         return res
     
     # Buck's formula
@@ -539,11 +553,11 @@ class GreenHouseModel:
 
     def T_Air(self):
         T_Out = self.environment.T_Out
-        return T_Out + 1
+        return T_Out + 3
 
     def T_Top(self):
         T_Out = self.environment.T_Out
-        return T_Out + 1
+        return T_Out + 2
 
     def T_Can(self):
         T_Out = self.environment.T_Out
