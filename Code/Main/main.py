@@ -3,6 +3,8 @@
 # %%
 import pandas as pd
 from tqdm import tqdm
+from sklearn.metrics import mean_squared_error
+
 
 from ModelState import *
 from ModelEnvironment import *
@@ -10,6 +12,7 @@ from ModelParameter import *
 from ModelSetPoint import *
 from GreenHouseModel import *
 from ODESolver import *
+
 
 
 # %%
@@ -29,7 +32,7 @@ for i in range(len(data)):
     if np.isnan(data['Rhout'][i]):
         data['Rhout'][i] = data['Rhout'][i - 1]
         
-    if np.isnan(data['Tout'][i]):
+    if np.isnan(data['Windsp'][i]):
         data['Windsp'][i] = data['Windsp'][i - 1]
 # data
 
@@ -40,8 +43,13 @@ ref_data = ref_data[2:-1]
 ref_data = ref_data[['Tair', 'RHair', 'CO2air']]
 
 ref_data.reset_index(inplace=True)
-# ref_data
 
+M_CO2 = 44
+for i in range(len(ref_data)):
+    if not np.isnan(ref_data['CO2air'][i]):
+        ref_data['CO2air'][i] = ref_data['CO2air'][i] * M_CO2 / 24.45 
+# ref_data
+ref_data['CO2air'].to_csv('CO2air_mg_m-3.csv', index = False)
 # %%
 def run_Sicily_model():
     parameter = ModelParameter(
@@ -86,7 +94,9 @@ def run_Sicily_model():
             print(state.to_numpy_array())
             break
 
+        # print(state.to_numpy_array())
         if np.isnan(state.CO2_Air) or np.isnan(state.CO2_Top) or np.isnan(state.VP_Air) or np.isnan(state.VP_Top):
+        # if np.isnan(environment.T_Out) or np.isnan(environment.RH_Out) or np.isnan(environment.v_Wind):
             print(f"nan at {i}:")
             print(state.to_numpy_array())
             break
@@ -106,13 +116,26 @@ res_data = pd.DataFrame(
 
 # %%
 res_data.to_csv('sicily.csv', index=False)
-# %%
-RRMSE_CO2_Air = sum([(1/len(data))*(ref_data['CO2air'][i] - res_data['CO2air'][i])**2 for i in range(len(data))])**(1/2)
-RRMSE_CO2_Air
-# %%
-res_data
 
 # %%
-result
+def Cal_rmse(act, predicted):
+    for i in range(len(act)):
+        if np.isnan(act[i]):
+            act[i] = predicted[i]
+    return mean_squared_error(act, predicted, squared = False)
+
+#%%
+
+rmse_CO2_Air = Cal_rmse(ref_data['CO2air'], res_data['CO2air'])
+print(f'Root min square error of CO2air: {rmse_CO2_Air}')
+
+#%%
+para = ModelParameter()
+gh = GreenHouseModel(parameter = para)
+ref_VP_Air = [gh.saturation_VP(ref_data['Tair'][i]) for i in range(len(ref_data))]
+# ref_VP_Air[0:10]
+rmse_VP_Air = Cal_rmse(ref_VP_Air, res_data['VPair'])
+
+print(f'Root min square error of VPair: {rmse_VP_Air}')
+
 # %%
-valid_index = [not np.isnan(ref_data[''])]
