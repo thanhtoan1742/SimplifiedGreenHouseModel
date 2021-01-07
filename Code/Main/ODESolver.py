@@ -42,24 +42,20 @@ class ODESolver:
         k_4 = np.array([0 for i in range(m)], dtype=float)
 
         val = du(u_t, t)
-        for i in range(m):
-            k_1[i] = h * val[i]
-        print("k_1= ", k_1)
+        k_1 = h * val
+        # print("k_1= ", k_1)
         val = du(u_t + 1 / 2 * k_1, t + h / 2)
-        for i in range(m):
-            k_2[i] = h * val[i]
-        print("k_2= ", k_2)
+        k_2 = h * val
+        # print("k_2= ", k_2)
         val = du(u_t + 1 / 2 * k_2, t + h / 2)
-        for i in range(m):
-            k_3[i] = h * val[i]
-        print("k_3= ", k_3)
+        k_3 = h * val
+        # print("k_3= ", k_3)
         val = du(u_t + k_3, t + h)
-        for i in range(m):
-            k_4[i] = h * val[i]
-        print("k_4= ", k_4)
+        k_4 = h * val
+        # print("k_4= ", k_4)
         u_t_out = u_t + 1 / 6 * (k_1 + 2 * k_2 + 2 * k_3 + k_4)
-        print("u_t= ", u_t_out)
-        print()
+        # print("u_t= ", u_t_out)
+        # print()
         return u_t_out
 
     def euler_solver(self, u_t, t, h, du):
