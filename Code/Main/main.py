@@ -86,9 +86,13 @@ def run_Sicily_model():
             # new_state = d_state.to_numpy_array() * 5 + state.to_numpy_array()
             # new_state = ModelState().from_numpy_array(new_state)
             # state = new_state
+            # new_state = solver.euler_wrapper_for_GreenHouseModel(state, environment, setpoint, 0, 5)
             new_state = solver.euler_wrapper_for_GreenHouseModel(state, environment, setpoint, 0, 5)
             state = new_state
 
+        # new_state = solver.rk4_wrapper_for_GreenHouseModel(state, environment, setpoint, 0, 300)
+        
+    
         result[i+1] = state.to_numpy_array()
 
         if state.CO2_Air < 0 or state.CO2_Top < 0 or state.VP_Air < 0 or state.VP_Top < 0:
@@ -117,7 +121,7 @@ res_data = pd.DataFrame(
 )
 
 # %%
-res_data.to_csv('sicily_euler.csv', index=False)
+res_data.to_csv('sicily_rk4.csv', index=False)
 
 # %%
 def Cal_rmse(act, predicted):
@@ -129,7 +133,7 @@ def Cal_rmse(act, predicted):
 #%%
 
 rmse_CO2_Air = Cal_rmse(ref_data['CO2air'], res_data['CO2air'])
-print(f'Root min square error of CO2air: {rmse_CO2_Air}')
+print(f'Root mean square error of CO2air: {rmse_CO2_Air}')
 
 #%%
 para = ModelParameter()
@@ -138,6 +142,6 @@ ref_VP_Air = [gh.saturation_VP(ref_data['Tair'][i]) for i in range(len(ref_data)
 # ref_VP_Air[0:10]
 rmse_VP_Air = Cal_rmse(ref_VP_Air, res_data['VPair'])
 
-print(f'Root min square error of VPair: {rmse_VP_Air}')
+print(f'Root mean square error of VPair: {rmse_VP_Air}')
 
 # %%
