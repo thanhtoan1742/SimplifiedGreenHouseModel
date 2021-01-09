@@ -13,7 +13,8 @@ from ModelSetPoint import *
 from GreenHouseModel import *
 from ODESolver import *
 
-
+METHOD = 'euler'
+NAME = 'sicily'
 
 # %%
 DATA_PATH = 'meteo.csv'
@@ -87,7 +88,10 @@ def run_Sicily_model():
             # new_state = ModelState().from_numpy_array(new_state)
             # state = new_state
             # new_state = solver.euler_wrapper_for_GreenHouseModel(state, environment, setpoint, 0, 5)
-            new_state = solver.euler_wrapper_for_GreenHouseModel(state, environment, setpoint, 0, 5)
+            if METHOD == 'rk4':
+                new_state = solver.rk4_wrapper_for_GreenHouseModel(state, environment, setpoint, 0, 5)
+            else :
+                new_state = solver.euler_wrapper_for_GreenHouseModel(state, environment, setpoint, 0, 5)
             state = new_state
 
         # new_state = solver.rk4_wrapper_for_GreenHouseModel(state, environment, setpoint, 0, 300)
@@ -120,8 +124,10 @@ res_data = pd.DataFrame(
 )
 
 # %%
-res_data.to_csv('sicily_euler.csv', index=False)
-print("Writing done\n")
+
+PATH = 'result/' + NAME + '_' + METHOD + '.csv'
+res_data.to_csv(PATH, index=False)
+
 # %%
 def Cal_rmse(act, predicted):
     for i in range(len(act)):

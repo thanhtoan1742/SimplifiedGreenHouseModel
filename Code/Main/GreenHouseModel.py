@@ -21,10 +21,6 @@ class GreenHouseModel:
 
     def d_CO2_Top(self): #
         cap_CO2_Top = self.cap_CO2_Top()
-        # if np.abs((self.MC_AirTop() - self.MC_TopOut()) / cap_CO2_Top) > 10:
-            # print('Fuck you Sicily')
-            # print(f'MC_AirTop:{self.MC_AirTop()}, MC_TopOut: {self.MC_TopOut()}')
-
         return (self.MC_AirTop() - self.MC_TopOut()) / cap_CO2_Top
 
     def cap_CO2_Air(self): #
@@ -192,9 +188,6 @@ class GreenHouseModel:
         # print(f'tmp2_1:{g * h_Vent * (T_Air - T_Out)/(2*(T_Mean_Air + 273.15))}, tmp2_2:{C_w*pow(v_Wind, 2)}')
         # print(f'C_w:{C_w}, v_Wind:{v_Wind}')
         # print(f'tmp1:{tmp1}, tmp2:{tmp2}')
-        # if tmp1*math.pow(tmp2,1/2) > 0.1:
-        #     print('Fuck dd_f_VentRoof')
-        #     print(f'tmp1:{tmp1}, tmp2:{tmp2}')
         return tmp1*math.pow(tmp2,1/2)
 
     def dd_f_VentSide(self): #
@@ -258,8 +251,6 @@ class GreenHouseModel:
         f_VentRoof = self.f_VentRoof()
         CO2_Top = self.state.CO2_Top
         CO2_Out = self.environment.CO2_Out
-        # print(f'CO2_Top:{CO2_Top}, CO2_Out:{CO2_Out}')
-        # print(f'f_VentRoof:{f_VentRoof}')
         return f_VentRoof*(CO2_Top - CO2_Out)
 
     def MC_AirOut(self): #
