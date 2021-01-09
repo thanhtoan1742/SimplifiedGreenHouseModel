@@ -20,7 +20,7 @@ class GreenHouseModel:
 
     def d_CO2_Top(self): #
         cap_CO2_Top = self.cap_CO2_Top()
-        print(f'MC_AirTop:{self.MC_AirTop()}, MC_TopOut: {self.MC_TopOut()}')
+        # print(f'MC_AirTop:{self.MC_AirTop()}, MC_TopOut: {self.MC_TopOut()}')
         return (self.MC_AirTop() - self.MC_TopOut()) / cap_CO2_Top
 
     def cap_CO2_Air(self): #
@@ -186,7 +186,7 @@ class GreenHouseModel:
         tmp2 = g * h_Vent * (T_Air - T_Out)/(2*(T_Mean_Air + 273.15)) + C_w*pow(v_Wind, 2)
         # print(f'tmp2_1:{g * h_Vent * (T_Air - T_Out)/(2*(T_Mean_Air + 273.15))}, tmp2_2:{C_w*pow(v_Wind, 2)}')
         # print(f'C_w:{C_w}, v_Wind:{v_Wind}')
-        print(f'tmp1:{tmp1}, tmp2:{tmp2}')
+        # print(f'tmp1:{tmp1}, tmp2:{tmp2}')
 
         return tmp1*math.pow(tmp2,1/2)
 
@@ -216,7 +216,7 @@ class GreenHouseModel:
         if (eta_Roof >= eta_Roof_Thr):
             return eta_InsScr * dd_f_VentRoof + 0.5*f_leakage
         else:
-            print(f'dd_f_VentRoof:{dd_f_VentRoof}')
+            # print(f'dd_f_VentRoof:{dd_f_VentRoof}')
             sreen = U_ThScr*dd_f_VentRoof
             no_screen = (1-U_ThScr) * dd_f_VentRoofSide*eta_Roof
             return eta_InsScr*(sreen + no_screen) + 0.5*f_leakage
@@ -251,8 +251,8 @@ class GreenHouseModel:
         f_VentRoof = self.f_VentRoof()
         CO2_Top = self.state.CO2_Top
         CO2_Out = self.environment.CO2_Out
-        print(f'CO2_Top - CO2_Out: {(CO2_Top - CO2_Out)}')
-        print(f'f_VentRoof:{f_VentRoof}')
+        # print(f'CO2_Top - CO2_Out: {(CO2_Top - CO2_Out)}')
+        # print(f'f_VentRoof:{f_VentRoof}')
         return f_VentRoof*(CO2_Top - CO2_Out)
 
     def MC_AirOut(self): #
