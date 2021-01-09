@@ -19,7 +19,7 @@ class ModelParameter:
         self.h_SideRoof = h_SideRoof # x | x | x | x
         self.h_Vent = h_Vent # 1.6 | 0.68 | 0.97 | x
         self.C_Gh_d = C_Gh_d # 0.75 | 0.75 | 0.65 | x
-        self.C_Gh_w = C_Gh_w # 0.12 | 0.12 | 0.09 | x
+        self.C_Gh_w = C_Gh_w # 0.12 | 0.09 | 0.09 | x
         self.eta_ShScrC_d = eta_ShScrC_d # x | x | x | x
         self.eta_ShScrC_w = eta_ShScrC_w # x | x | x | x
         self.sigma_InsScr = sigma_InsScr # 0.33 | 1 | 1 | x
