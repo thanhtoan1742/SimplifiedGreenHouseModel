@@ -156,7 +156,7 @@ class GreenHouseModel:
         T_Mean_Air = (T_Air + T_Out)/2
 
         temp1 =  math.pow(U_Roof*U_Side*A_Roof*A_Side, 2) / ( math.pow(U_Roof*A_Roof, 2) + math.pow(U_Side*A_Side, 2) ) 
-        temp2 = (2 * g * h_SideRoof * (T_Air-T_Out) ) /T_Mean_Air
+        temp2 = (2 * g * h_SideRoof * (T_Air-T_Out) ) /(T_Mean_Air + 273.15)
         temp3 = math.pow( (U_Roof*A_Roof + U_Side*A_Side)/2, 2) * C_w*math.pow(v_Wind, 2)
         return (C_d / A_Flr) * math.pow(temp1 * temp2 + temp3, 1/2)
 
@@ -177,7 +177,7 @@ class GreenHouseModel:
         g = constant.g
 
         tmp1 = C_d*U_Roof*A_Roof/(2*A_Flr)
-        tmp2 = g * h_Vent * (T_Air - T_Out)/(2*T_Mean_Air) + C_w*pow(v_Wind, 2) 
+        tmp2 = g * h_Vent * (T_Air - T_Out)/(2*(T_Mean_Air + 273.15)) + C_w*pow(v_Wind, 2) 
 
         return tmp1*math.pow(tmp2,1/2)
 
