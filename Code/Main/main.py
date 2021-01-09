@@ -14,7 +14,7 @@ from GreenHouseModel import *
 from ODESolver import *
 
 METHOD = 'euler'
-NAME = 'sicily'
+NAME = 'Arizona'
 
 # %%
 DATA_PATH = 'meteo.csv'
