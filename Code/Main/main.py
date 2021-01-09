@@ -87,7 +87,7 @@ def run_Sicily_model():
             # new_state = ModelState().from_numpy_array(new_state)
             # state = new_state
             # new_state = solver.euler_wrapper_for_GreenHouseModel(state, environment, setpoint, 0, 5)
-            new_state = solver.rk4_wrapper_for_GreenHouseModel(state, environment, setpoint, 0, 5)
+            new_state = solver.euler_wrapper_for_GreenHouseModel(state, environment, setpoint, 0, 5)
             state = new_state
 
         # new_state = solver.rk4_wrapper_for_GreenHouseModel(state, environment, setpoint, 0, 300)
