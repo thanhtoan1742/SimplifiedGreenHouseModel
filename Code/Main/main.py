@@ -55,11 +55,11 @@ def run_Sicily_model():
     parameter = ModelParameter(
         A_Cov=1.7e4, A_Flr=1.3e4, h_Air=4.0, h_Elevation=104, h_Gh=4.8, c_HECin=2.21,
         K_ThScr=0.05e-3,
-        A_Roof=0.2*1.3e4, h_Vent=1.6, C_Gh_d=0.75, C_Gh_w=0.12, sigma_InsScr=0.33, c_leakage=1e-4,
+        A_Roof=0.26*1.3e4, h_Vent=1.6, C_Gh_d=0.75, C_Gh_w=0.12, sigma_InsScr=0.33, c_leakage=1e-4,
     )
     gh = GreenHouseModel(parameter=parameter)
     setpoint = ModelSetPoint(
-        U_ThScr=1, U_ShScr=1, U_Roof=1, U_Side=1
+        U_ThScr=1, U_ShScr=1, U_Roof=0.1, U_Side=1
     )
 
     state = ModelState(
@@ -109,7 +109,6 @@ def run_Sicily_model():
         # new_state = solver.euler_wrapper_for_GreenHouseModel(state, environment, setpoint, 0, 300)
         # result.append(new_state.to_numpy_array())
         # state = new_state
-
     return result
 
 
@@ -121,8 +120,8 @@ res_data = pd.DataFrame(
 )
 
 # %%
-res_data.to_csv('sicily_rk4.csv', index=False)
-
+res_data.to_csv('sicily_euler.csv', index=False)
+print("Writing done\n")
 # %%
 def Cal_rmse(act, predicted):
     for i in range(len(act)):
