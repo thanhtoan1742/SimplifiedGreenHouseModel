@@ -274,9 +274,15 @@ def run_Arizona_model():
         )
 
         for j in range(60):
-            d_state = gh(setpoint, state, environment)
-            new_state = d_state.to_numpy_array() * 5 + state.to_numpy_array()
-            new_state = ModelState().from_numpy_array(new_state)
+            # d_state = gh(setpoint, state, environment)
+            # new_state = d_state.to_numpy_array() * 5 + state.to_numpy_array()
+            # new_state = ModelState().from_numpy_array(new_state)
+            # state = new_state
+            # new_state = solver.euler_wrapper_for_GreenHouseModel(state, environment, setpoint, 0, 5)
+            if METHOD == 'rk4':
+                new_state = solver.rk4_wrapper_for_GreenHouseModel(state, environment, setpoint, 0, 5)
+            else :
+                new_state = solver.euler_wrapper_for_GreenHouseModel(state, environment, setpoint, 0, 5)
             state = new_state
 
         result[i+1] = state.to_numpy_array()
@@ -299,15 +305,20 @@ def run_Arizona_model():
     return result
 
 # %%
+print(METHOD)
 if NAME == 'sicily':
+    print("sicily")
     result = run_Sicily_model()
 else:
     if NAME == 'Netherland':
+        print("Netherland")
         result = run_Netherland_model()
     else:
         if NAME == 'Texas':
+            print("Texas")
             result = run_Texas_model()
         else:
+            print("Arizona")
             result = run_Arizona_model()
 res_data = pd.DataFrame(
     result,
