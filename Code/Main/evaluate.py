@@ -8,7 +8,7 @@ from GreenHouseModel import GreenHouseModel
 import matplotlib.pyplot as plt
 
 METHOD = 'rk4' # euler | rk4
-NAME = 'Netherland' # sicily | Arizona | Netherlan | Texas
+NAME = 'Texas' # sicily | Arizona | Netherlan | Texas
 DATA_PATH = 'meteo.csv'
 REFERENCE_DATA_PATH = 'Greenhouse_climate.csv'
 PREDICTED_DATA_PATH = 'result/' + NAME + '_' + METHOD + '.csv'
@@ -59,16 +59,18 @@ with open(RESULT_DATA_PATH, 'w+') as f:
 y_true = ref_data['CO2air'].to_numpy()
 y_pred = pred_data['CO2air'].to_numpy()
 
-plt.plot(y_true, color='#1196cf', linestyle='solid')
-plt.plot(y_pred, color='#ff8b2b', linestyle='solid')
+plt.plot(y_true, color='#1196cf', linestyle='solid', label='Data')
+plt.plot(y_pred, color='#ff8b2b', linestyle='solid', label='Predicted')
+plt.legend()
 plt.savefig(CO2_AIR_FIGURE_PATH)
 plt.clf()
 # %%
 y_true = ref_data['VPair'].to_numpy()
 y_pred = pred_data['VPair'].to_numpy()
 
-plt.plot(y_true, color='#1196cf', linestyle='solid')
-plt.plot(y_pred, color='#ff8b2b', linestyle='solid')
+plt.plot(y_true, color='#1196cf', linestyle='solid', label='Data')
+plt.plot(y_pred, color='#ff8b2b', linestyle='solid', label='Predicted')
+plt.legend()
 plt.savefig(VP_AIR_FIGURE_PATH)
 plt.clf()
 # %%
