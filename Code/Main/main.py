@@ -13,7 +13,7 @@ from ModelSetPoint import *
 from GreenHouseModel import *
 from ODESolver import *
 
-METHOD = 'rk4'
+METHOD = 'euler'
 NAME = 'Arizona'
 
 # %%
@@ -335,10 +335,12 @@ def Cal_rmse(act, predicted):
     for i in range(len(act)):
         if np.isnan(act[i]):
             act[i] = predicted[i]
-    return mean_squared_error(act, predicted, squared = False)
+    return mean_squared_error(act, predicted, squared = False) * 100 / np.mean(act)
 
 #%%
 
+PATH = 'result/' + NAME + '_' + METHOD + '.csv'
+res_data = pd.read_csv(PATH)
 rmse_CO2_Air = Cal_rmse(ref_data['CO2air'], res_data['CO2air'])
 print(f'Root mean square error of CO2air: {rmse_CO2_Air}')
 
