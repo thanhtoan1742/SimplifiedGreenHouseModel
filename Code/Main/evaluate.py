@@ -8,7 +8,7 @@ from GreenHouseModel import GreenHouseModel
 import matplotlib.pyplot as plt
 
 METHOD = 'rk4' # euler | rk4
-NAME = 'Netherland' # sicily | Arizona | Netherlan | Texas
+NAME = 'Arizona' # sicily | Arizona | Netherlan | Texas
 DATA_PATH = 'meteo.csv'
 REFERENCE_DATA_PATH = 'Greenhouse_climate.csv'
 PREDICTED_DATA_PATH = 'result/' + NAME + '_' + METHOD + '.csv'
