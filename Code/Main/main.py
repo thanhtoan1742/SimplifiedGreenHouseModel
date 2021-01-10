@@ -13,8 +13,8 @@ from ModelSetPoint import *
 from GreenHouseModel import *
 from ODESolver import *
 
-METHOD = 'euler'
-NAME = 'Texas'
+METHOD = 'rk4'
+NAME = 'Netherland'
 
 # %%
 DATA_PATH = 'meteo.csv'

@@ -1,16 +1,19 @@
 # %%
 import numpy as np
+from numpy.core.function_base import linspace
 import pandas as pd
 from statistics import mean
 from sklearn.metrics import mean_squared_error
 from GreenHouseModel import GreenHouseModel
+import matplotlib.pyplot as plt
 
 METHOD = 'rk4' # euler | rk4
-NAME = 'Arizona' # sicily | Arizona
+NAME = 'Netherland' # sicily | Arizona | Netherlan | Texas
 DATA_PATH = 'meteo.csv'
 REFERENCE_DATA_PATH = 'Greenhouse_climate.csv'
 PREDICTED_DATA_PATH = 'result/' + NAME + '_' + METHOD + '.csv'
 RESULT_DATA_PATH = 'result/rrmse_' + NAME + '_' + METHOD + '.txt'
+FIGURE_PATH = 'result/' + NAME + '_' + METHOD + '.png'
 # %%
 gh = GreenHouseModel(parameter=None)
 # %%
@@ -51,4 +54,13 @@ with open(RESULT_DATA_PATH, 'w+') as f:
     file_content += 'relative root mean squared error of VPair: ' + str(VP_Air_RRMSE) + '%\n'
 
     f.write(file_content)
+# %%
+y_true = ref_data['CO2air'].to_numpy()
+y_pred = pred_data['CO2air'].to_numpy()
+
+plt.plot(y_true)
+plt.plot(y_pred)
+plt.savefig(FIGURE_PATH)
+# %%
+
 # %%
