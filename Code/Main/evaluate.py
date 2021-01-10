@@ -7,8 +7,8 @@ from sklearn.metrics import mean_squared_error
 from GreenHouseModel import GreenHouseModel
 import matplotlib.pyplot as plt
 
-METHOD = 'rk4' # euler | rk4
-NAME = 'Netherland' # sicily | Arizona | Netherlan | Texas
+METHOD = 'euler' # euler | rk4
+NAME = 'sicily' # sicily | Arizona | Netherlan | Texas
 DATA_PATH = 'meteo.csv'
 REFERENCE_DATA_PATH = 'Greenhouse_climate.csv'
 PREDICTED_DATA_PATH = 'result/' + NAME + '_' + METHOD + '.csv'
@@ -50,16 +50,17 @@ print(VP_Air_RRMSE)
 with open(RESULT_DATA_PATH, 'w+') as f:
     file_content = ''
 
-    file_content += 'relative root mean squared error of CO2air: ' + str(CO2_Air_RRMSE) + '%\n'
-    file_content += 'relative root mean squared error of VPair: ' + str(VP_Air_RRMSE) + '%\n'
+    file_content += 'relative root mean squared error of CO2air: ' + str(CO2_Air_RRMSE) + ' %\n'
+    file_content += 'relative root mean squared error of VPair: ' + str(VP_Air_RRMSE) + ' %\n'
 
     f.write(file_content)
 # %%
 y_true = ref_data['CO2air'].to_numpy()
 y_pred = pred_data['CO2air'].to_numpy()
 
-plt.plot(y_true)
-plt.plot(y_pred)
+plt.plot(y_true, label='Data')
+plt.plot(y_pred, label='Predicted')
+plt.legend()
 plt.savefig(FIGURE_PATH)
 # %%
 

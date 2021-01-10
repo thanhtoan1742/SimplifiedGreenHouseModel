@@ -1,4 +1,2 @@
-rk4
-Texas
-Root mean square error of CO2air: 24.329435371254988
-Root mean square error of VPair: 47.516369516411096
+relative root mean squared error of CO2air: 24.32943537125499%
+relative root mean squared error of VPair: 47.5163695164111%
