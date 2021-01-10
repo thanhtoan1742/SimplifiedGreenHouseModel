@@ -9,6 +9,7 @@ import matplotlib.pyplot as plt
 
 METHOD = 'euler' # euler | rk4
 NAME = 'sicily' # sicily | Arizona | Netherlan | Texas
+
 DATA_PATH = 'meteo.csv'
 REFERENCE_DATA_PATH = 'Greenhouse_climate.csv'
 PREDICTED_DATA_PATH = 'result/' + NAME + '_' + METHOD + '.csv'
