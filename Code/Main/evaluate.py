@@ -8,12 +8,13 @@ from GreenHouseModel import GreenHouseModel
 import matplotlib.pyplot as plt
 
 METHOD = 'rk4' # euler | rk4
-NAME = 'Arizona' # sicily | Arizona | Netherlan | Texas
+NAME = 'Netherland' # sicily | Arizona | Netherlan | Texas
 DATA_PATH = 'meteo.csv'
 REFERENCE_DATA_PATH = 'Greenhouse_climate.csv'
 PREDICTED_DATA_PATH = 'result/' + NAME + '_' + METHOD + '.csv'
 RESULT_DATA_PATH = 'result/rrmse_' + NAME + '_' + METHOD + '.txt'
-FIGURE_PATH = 'result/' + NAME + '_' + METHOD + '.png'
+CO2_AIR_FIGURE_PATH = 'result/' + NAME + '_' + METHOD + '_CO2air.png'
+VP_AIR_FIGURE_PATH = 'result/' + NAME + '_' + METHOD + '_VPair.png'
 # %%
 gh = GreenHouseModel(parameter=None)
 # %%
@@ -58,9 +59,16 @@ with open(RESULT_DATA_PATH, 'w+') as f:
 y_true = ref_data['CO2air'].to_numpy()
 y_pred = pred_data['CO2air'].to_numpy()
 
-plt.plot(y_true)
-plt.plot(y_pred)
-plt.savefig(FIGURE_PATH)
+plt.plot(y_true, color='#1196cf', linestyle='solid')
+plt.plot(y_pred, color='#ff8b2b', linestyle='solid')
+plt.savefig(CO2_AIR_FIGURE_PATH)
+plt.clf()
 # %%
+y_true = ref_data['VPair'].to_numpy()
+y_pred = pred_data['VPair'].to_numpy()
 
+plt.plot(y_true, color='#1196cf', linestyle='solid')
+plt.plot(y_pred, color='#ff8b2b', linestyle='solid')
+plt.savefig(VP_AIR_FIGURE_PATH)
+plt.clf()
 # %%
