@@ -13,8 +13,8 @@ from ModelSetPoint import *
 from GreenHouseModel import *
 from ODESolver import *
 
-METHOD = 'rk4'
-NAME = 'Arizona'
+METHOD = 'euler'
+NAME = 'Texas'
 
 # %%
 DATA_PATH = 'meteo.csv'
@@ -123,7 +123,7 @@ def run_Netherland_model():
     )
     gh = GreenHouseModel(parameter=parameter)
     setpoint = ModelSetPoint(
-        U_ThScr=1, U_ShScr=1, U_Roof=1, U_Side=1, U_ExtCO2=1
+        U_ThScr=1, U_ShScr=1, U_Roof=0.1, U_Side=1, U_ExtCO2=1
     )
 
     state = ModelState(
@@ -187,7 +187,7 @@ def run_Texas_model():
     )
     gh = GreenHouseModel(parameter=parameter)
     setpoint = ModelSetPoint(
-        U_ThScr=1, U_ShScr=1, U_Roof=1, U_Side=1, U_ExtCO2=1
+        U_ThScr=1, U_ShScr=1, U_Roof=0.3, U_Side=1, U_ExtCO2=0.1
     )
 
     state = ModelState(
@@ -246,12 +246,12 @@ def run_Texas_model():
 def run_Arizona_model():
     parameter = ModelParameter(
         A_Cov=730, A_Flr=278, h_Air=5.9, h_Elevation=715, h_Gh=6.1, c_HECin=2.21,
-        K_ThScr=1e-3,
+        K_ThScr=1e-3, phi_Pad= 16.7,
         A_Roof=0, h_Vent=0, C_Gh_d=0, C_Gh_w=0, sigma_InsScr=0, c_leakage=1e-4,
     )
     gh = GreenHouseModel(parameter=parameter)
     setpoint = ModelSetPoint(
-        U_ThScr=1, U_ShScr=1, U_Roof=0, U_Side=1
+        U_ThScr=1, U_ShScr=1, U_Roof=0, U_Side=1, U_Pad=1
     )
 
     state = ModelState(
