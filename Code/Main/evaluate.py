@@ -5,7 +5,7 @@ from statistics import mean
 from sklearn.metrics import mean_squared_error
 from GreenHouseModel import GreenHouseModel
 
-METHOD = 'euler'
+METHOD = 'rk4' # euler | rk4
 NAME = 'Arizona' # sicily | Arizona
 DATA_PATH = 'meteo.csv'
 REFERENCE_DATA_PATH = 'Greenhouse_climate.csv'
