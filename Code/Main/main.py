@@ -13,7 +13,7 @@ from ModelSetPoint import *
 from GreenHouseModel import *
 from ODESolver import *
 
-METHOD = 'euler'
+METHOD = 'rk4'
 NAME = 'Arizona'
 
 # %%
