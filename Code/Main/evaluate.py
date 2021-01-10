@@ -51,8 +51,8 @@ print(VP_Air_RRMSE)
 with open(RESULT_DATA_PATH, 'w+') as f:
     file_content = ''
 
-    file_content += 'relative root mean squared error of CO2air: ' + str(CO2_Air_RRMSE) + '%\n'
-    file_content += 'relative root mean squared error of VPair: ' + str(VP_Air_RRMSE) + '%\n'
+    file_content += 'relative root mean squared error of CO2air: ' + str(CO2_Air_RRMSE) + ' %\n'
+    file_content += 'relative root mean squared error of VPair: ' + str(VP_Air_RRMSE) + ' %\n'
 
     f.write(file_content)
 # %%
