@@ -1,6 +1,6 @@
 import math
 
-import ModelConstant as constant 
+import ModelConstant as constant
 from ModelParameter import *
 from ModelSetPoint import *
 from ModelState import *
@@ -15,9 +15,17 @@ class GreenHouseModel:
 
     def d_CO2_Air(self): #
         cap_CO2_Air = self.cap_CO2_Air()
-        # print(f'MC_BlowAir: {self.MV_BlowAir()}, MC_ExtAir: {self.MC_ExtAir()}, MC_PadAir: {self.MC_PadAir()}')
-        # print(f'MC_AirCan:{self.MC_AirCan()}, MC_AirTop:{self.MC_AirTop()}, MC_AirOut:{self.MC_AirOut()}, ')
-        return (self.MC_BlowAir() + self.MC_ExtAir() + self.MC_PadAir() - self.MC_AirCan() - self.MC_AirTop() - self.MC_AirOut()) / cap_CO2_Air
+        MC_BlowAir = self.MC_BlowAir()
+        MC_ExtAir = self.MC_ExtAir()
+        MC_PadAir = self.MC_PadAir()
+        MC_AirCan = self.MC_AirCan()
+        MC_AirTop = self.MC_AirTop()
+        MC_AirOut = self.MC_AirOut()
+        # if np.abs((MC_BlowAir + MC_ExtAir + MC_PadAir - MC_AirCan - MC_AirTop - MC_AirOut) / cap_CO2_Air) > 1:
+        # print(f'MC_BlowAir: {MC_BlowAir}, MC_ExtAir: {MC_ExtAir}, MC_PadAir: {MC_PadAir}')
+        # print(f'MC_AirCan: {MC_AirCan}, MC_AirTop: {MC_AirTop}, MC_AirOut: {MC_AirOut},')
+        # print()
+        return (MC_BlowAir + MC_ExtAir + MC_PadAir - MC_AirCan - MC_AirTop - MC_AirOut) / cap_CO2_Air
 
     def d_CO2_Top(self): #
         cap_CO2_Top = self.cap_CO2_Top()
@@ -121,7 +129,7 @@ class GreenHouseModel:
 
         eta_ShScrC_d = self.parameter.eta_ShScrC_d
 
-        return C_Gh_d*(1-eta_ShScrC_d*U_ShScr) 
+        return C_Gh_d*(1-eta_ShScrC_d*U_ShScr)
 
     def C_w(self): # not safe
         U_ShScr = self.setPoint.U_ShScr
@@ -162,13 +170,13 @@ class GreenHouseModel:
 
         T_Mean_Air = (T_Air + T_Out)/2
 
-        if U_Roof == 0 and U_Side == 0: 
+        if U_Roof == 0 and U_Side == 0:
             temp1 = 0
         else:
-            if U_Roof == 0: 
+            if U_Roof == 0:
                 temp1 = (U_Side * A_Side) ** 2
             else:
-                temp1 =  math.pow(U_Roof*U_Side*A_Roof*A_Side, 2) / ( math.pow(U_Roof*A_Roof, 2) + math.pow(U_Side*A_Side, 2) ) 
+                temp1 =  math.pow(U_Roof*U_Side*A_Roof*A_Side, 2) / ( math.pow(U_Roof*A_Roof, 2) + math.pow(U_Side*A_Side, 2) )
         temp2 = (2 * g * h_SideRoof * (T_Air-T_Out) ) /(T_Mean_Air + 273.15)
         temp3 = math.pow( (U_Roof*A_Roof + U_Side*A_Side)/2, 2) * C_w*math.pow(v_Wind, 2)
         return (C_d / A_Flr) * math.pow(temp1 * temp2 + temp3, 1/2)
@@ -206,7 +214,6 @@ class GreenHouseModel:
         A_Flr = self.parameter.A_Flr
         C_d = self.C_d()
         C_w = self.C_w()
-
         return C_d * U_Side * A_Side * v_Wind * math.pow(C_w, 0.5) / (2 * A_Flr)
 
 
@@ -265,6 +272,9 @@ class GreenHouseModel:
         CO2_Air = self.state.CO2_Air
         CO2_Out = self.environment.CO2_Out
         # print(f'f_VentSide:{f_VentSide}, f_VentForced:{f_VentForced}')
+        # print(f'CO2_Air: {CO2_Air}, CO2_Out: {CO2_Out}')
+        # print(f'f_VentSide: {f_VentSide}')
+        # print()
         return (f_VentSide + f_VentForced) * (CO2_Air - CO2_Out)
 
     def MC_AirCan(self): #
@@ -345,7 +355,7 @@ class GreenHouseModel:
 
     def d_VP_Air(self): #
         return (self.MV_CanAir() + self.MV_PadAir() + self.MV_FogAir() + self.MV_BlowAir() \
-            - self.MV_AirThScr() - self.MV_AirTop() - self.MV_AirOut() - self.MV_AirOut_Pad() 
+            - self.MV_AirThScr() - self.MV_AirTop() - self.MV_AirOut() - self.MV_AirOut_Pad()
             - self.MV_AirMech()) / self.cap_VP_Air()
 
     def d_VP_Top(self):
@@ -409,7 +419,7 @@ class GreenHouseModel:
         VP_Air = self.state.VP_Air
         VP_ThScr = self.saturation_VP(self.T_ThScr())
         HEC_AirThScr = self.HEC_AirThScr()
-        tmp1 = 1/( 1 + math.exp( s_MV12*(VP_Air - VP_ThScr) ) ) 
+        tmp1 = 1/( 1 + math.exp( s_MV12*(VP_Air - VP_ThScr) ) )
         tmp2 = 6.4*1e-9*HEC_AirThScr*(VP_Air-VP_ThScr)
         return tmp1*tmp2
 
@@ -442,7 +452,7 @@ class GreenHouseModel:
         T_Out = self.environment.T_Out
         RH_Out = self.environment.RH_Out
         VP_Out = self.saturation_VP(T_Out)
-        
+
         partial_pressure = RH_Out * VP_Out
         return self.specific_humidity(partial_pressure)
 
@@ -541,7 +551,7 @@ class GreenHouseModel:
 
 
         return res
-    
+
     # Buck's formula
     def saturation_VP(self, temp): #
         pressure = 0.61121 * math.exp((18.678 - (temp/234.5)) * (temp/(257.14 + temp))) # this is in kPa
@@ -556,7 +566,7 @@ class GreenHouseModel:
         P_Ambient = constant.P_Ambient
 
         return (M_Water/M_Air)*(partial_pressure/(P_Ambient - partial_pressure))
-    
+
     def HEC_TopCov_in(self): #
         c_HECin = self.parameter.c_HECin
         T_Top = self.T_Top()
@@ -597,6 +607,6 @@ class GreenHouseModel:
         return ModelState(self.d_CO2_Air(), self.d_CO2_Top(), self.d_VP_Air(), self.d_VP_Top())
 
 ###USE WHEN TESTING METHODS###
-# if __name__ == "__main__": 
+# if __name__ == "__main__":
 #     model = CO2_Model(0,0)
 #     model.MC_AirTop(1,1,1,1,1,1,1)

@@ -123,7 +123,7 @@ def run_Netherland_model():
     )
     gh = GreenHouseModel(parameter=parameter)
     setpoint = ModelSetPoint(
-        U_ThScr=1, U_ShScr=1, U_Roof=0.1, U_Side=1, U_ExtCO2=1
+        U_ThScr=1, U_ShScr=1, U_Roof=0.1, U_Side=1, U_ExtCO2=0.05
     )
 
     state = ModelState(
@@ -151,6 +151,8 @@ def run_Netherland_model():
             # new_state = ModelState().from_numpy_array(new_state)
             # state = new_state
             # new_state = solver.euler_wrapper_for_GreenHouseModel(state, environment, setpoint, 0, 5)
+            # print(f"v_Wind:{environment.v_Wind}")
+            # print()
             if METHOD == 'rk4':
                 new_state = solver.rk4_wrapper_for_GreenHouseModel(state, environment, setpoint, 0, 5)
             else :

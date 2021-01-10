@@ -7,8 +7,8 @@ from sklearn.metrics import mean_squared_error
 from GreenHouseModel import GreenHouseModel
 import matplotlib.pyplot as plt
 
-METHOD = 'euler' # euler | rk4
-NAME = 'sicily' # sicily | Arizona | Netherlan | Texas
+METHOD = 'rk4' # euler | rk4
+NAME = 'Netherland' # sicily | Arizona | Netherland | Texas
 
 DATA_PATH = 'meteo.csv'
 REFERENCE_DATA_PATH = 'Greenhouse_climate.csv'
