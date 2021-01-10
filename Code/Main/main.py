@@ -339,8 +339,8 @@ def Cal_rmse(act, predicted):
 
 #%%
 
-PATH = 'result/' + NAME + '_' + METHOD + '.csv'
-res_data = pd.read_csv(PATH)
+# PATH = 'result/' + NAME + '_' + METHOD + '.csv'
+# res_data = pd.read_csv(PATH)
 rmse_CO2_Air = Cal_rmse(ref_data['CO2air'], res_data['CO2air'])
 print(f'Root mean square error of CO2air: {rmse_CO2_Air}')
 
